@@ -54,7 +54,8 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    bgImg.draw(0,0,ofGetWidth(),ofGetHeight());
+    bgImg.draw(-animals[0].pos.x,0,ofGetWidth(),ofGetHeight());
+    bgImg.draw(ofGetWidth() - animals[0].pos.x,0,ofGetWidth(),ofGetHeight());
     for (int i = 0; i < animals.size(); i++)  animals[i].draw();
 }
 

@@ -34,7 +34,7 @@ void Animal::update() {
     counter += 1;
     
     // switch to the next image every ten frames
-    if (counter >= 5) {
+    if (counter >= vel.x) {
         current_frame += 1;
         counter = 0;
     }
