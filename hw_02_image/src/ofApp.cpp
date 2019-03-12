@@ -5,6 +5,7 @@
 void ofApp::setup(){
     
     ofSetFrameRate(60);
+    ofSetVerticalSync(false); //framerate
     
     // load the audio file
     bgm.load("vivaldi.mp3");
