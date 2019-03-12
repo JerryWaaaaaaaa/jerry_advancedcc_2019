@@ -19,17 +19,17 @@ void ofApp::setup(){
     mFbo.allocate(mVideoGrabber.getWidth(), mVideoGrabber.getHeight(), GL_RGBA);
     
     // add particles to the array
-    for ( int i = 0; i < 1000; i ++ ) {
+    for ( int i = 0; i < 230; i ++ ) {
         particles.push_back( make_shared<Particles>() );
     }
     
     for (int i = 0; i < particles.size(); i ++ ) {
-        particles[i] -> setup(ofGetWidth() - mVideoGrabber.getWidth(), ofGetHeight() - mVideoGrabber.getHeight());
+        particles[i] -> setup(ofGetWidth(), ofGetHeight(), scl, col);
     }
     
     // build grids
-    col = floor((ofGetWidth() - mVideoGrabber.getWidth())/scl);
-    row = floor((ofGetHeight() - mVideoGrabber.getHeight())/scl);
+    col = floor(ofGetWidth()/scl);
+    row = floor(ofGetHeight()/scl);
     //std::cout << "row: " << row << endl;
     //std::cout << "column: " << col << endl;
     flowField.resize(col * row);
@@ -39,12 +39,7 @@ void ofApp::setup(){
 void ofApp::update(){
     
     mVideoGrabber.update();
-    
-    auto tex = mVideoGrabber.getTexture();
-    mFbo.begin();
-    ofClear(255, 255, 255, 255);
-    tex.draw(0, 0);
-    mFbo.end();
+
 }
 
 //--------------------------------------------------------------
@@ -79,33 +74,35 @@ void ofApp::draw(){
     zOff += 0.01;
     
     
-    // draw the image based on mode
-    ofSetHexColor(0xffffff);
-    mFbo.draw(ofGetWidth() - mVideoGrabber.getWidth(), ofGetHeight() - mVideoGrabber.getHeight(), mVideoGrabber.getWidth(), mVideoGrabber.getHeight());
-    
+    auto tex = mVideoGrabber.getTexture();
+    mFbo.begin();
+    ofClear(255, 255, 255, 255);
+    tex.draw(0, 0);
+    mFbo.end();
     // save image region
-    imgSave.grabScreen(0, 0, mVideoGrabber.getWidth(), mVideoGrabber.getHeight());
+    //imgSave.grabScreen(0, 0, mVideoGrabber.getWidth(), mVideoGrabber.getHeight());
     
+    // draw image based on mode
     if (currentMode == "draw") {
         //colorImg.draw(0, 0, ofGetWidth() - mVideoGrabber.getWidth() / 2, ofGetHeight() - mVideoGrabber.getHeight() / 2);
-        grayImage.draw(0, 0, ofGetWidth() - mVideoGrabber.getWidth(), ofGetHeight() - mVideoGrabber.getHeight());
+        grayImage.draw(0, 0, ofGetWidth(), ofGetHeight());
+        mFbo.draw(ofGetWidth() - mVideoGrabber.getWidth(), ofGetHeight() - mVideoGrabber.getHeight(), mVideoGrabber.getWidth(), mVideoGrabber.getHeight());
     }
     else if (currentMode == "diff") {
-        grayFrame1.draw(0, 0, ofGetWidth() - mVideoGrabber.getWidth(), ofGetHeight() - mVideoGrabber.getHeight());
-        grayFrame2.draw(0, 0, ofGetWidth() - mVideoGrabber.getWidth(), ofGetHeight() - mVideoGrabber.getHeight());
+        grayFrame1.draw(0, 0, ofGetWidth(), ofGetHeight());
+        grayFrame2.draw(0, 0, ofGetWidth(), ofGetHeight());
+        mFbo.draw(ofGetWidth() - mVideoGrabber.getWidth(), ofGetHeight() - mVideoGrabber.getHeight(), mVideoGrabber.getWidth(), mVideoGrabber.getHeight());
     }
     else if (currentMode == "flowField") {
+        
         // draw the particles
         for (int i = 0; i < particles.size(); i ++ ) {
-            particles[i] -> follow(flowField, scl, col);
+            particles[i] -> follow(flowField);
             particles[i] -> update();
             particles[i] -> edges();
             particles[i] -> draw(testImg);
         }
     }
-    
-
-    
     
 
 }
@@ -132,6 +129,10 @@ void ofApp::keyPressed(int key){
                     grayFrame2.absDiff(grayFrame1);
                     frameCounter = 0;
                 }
+            }
+            
+            else if (currentMode == "flowField") {
+                grayImage = colorImg; //grayscale the image
             }
             
             break;

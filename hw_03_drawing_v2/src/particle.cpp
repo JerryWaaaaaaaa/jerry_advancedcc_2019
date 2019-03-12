@@ -12,9 +12,11 @@
 
 Particles::Particles() = default;
 
-void Particles::setup(int _xMax, int _yMax){
+void Particles::setup(int _xMax, int _yMax, int _scl, int _col){
     xMax = _xMax;
     yMax = _yMax;
+    scl = _scl;
+    col = _col;
     pos = ofVec2f(floor(xMax), floor(yMax));
     prePos = pos;
     vel = ofVec2f(0,0);
@@ -36,24 +38,29 @@ void Particles::draw(ofImage _img){
     img = _img;
     
     //ofSetColor(50,20);
-    ofColor color = img.getColor(round(pos.x), round(pos.y));
-    cout << "x is " << pos.x << endl;
-    cout << "y is " << pos.y << endl;
+    //ofColor color = img.getColor(floor(pos.x), floor(pos.y));
+    ofPixels pixels = img.getPixels();
     
-    int greyscale = round(color.r * 0.222 + color.g * 0.707 + color.b * 0.071);
+    int pIndex = floor(pos.x) + floor(pos.y) * int(img.getWidth());
+    
+    int red = pixels[pIndex * 3];
+    int green = pixels[pIndex * 3 + 1];
+    int blue = pixels[pIndex * 3 + 2];
+    
+    int greyscale = round(red * 0.222 + green * 0.707 + blue * 0.071);
     //cout << "greyscale is " << greyscale << endl;
-    if ( greyscale < 200 ) {
+    //if ( greyscale < 200 ) {
         ofSetColor(greyscale, 20);
         ofSetLineWidth(1);
         ofDrawLine(pos.x, pos.y, prePos.x, prePos.y);
-    }
+    //}
     prePos = pos;
 }
 
-void Particles::follow(vector<ofVec2f> _flowField, int _scl, int _col){
-    int x = floor(pos.x / _scl);
-    int y = floor(pos.y / _scl);
-    long index = x + y * _col;
+void Particles::follow(vector<ofVec2f> _flowField){
+    int x = floor(pos.x / scl);
+    int y = floor(pos.y / scl);
+    long index = int(x + y * col);
     cout << "index is " << index << endl;
     cout << "flowfield is " << _flowField.size() << endl;
     ofVec2f force = _flowField[index];

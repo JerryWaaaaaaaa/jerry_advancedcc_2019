@@ -18,10 +18,10 @@ class Particles{
     
 public:
     Particles();
-    void setup(int xMax, int yMax);
+    void setup(int xMax, int yMax, int scl, int col);
     void update();
     void draw(ofImage img);
-    void follow(vector<ofVec2f> flowField, int scl, int col);
+    void follow(vector<ofVec2f> flowField);
     void applyForce(ofVec2f force);
     void updatePrev();
     void edges();
@@ -30,6 +30,8 @@ public:
     
     int xMax;
     int yMax;
+    int scl;
+    int col;
     
     ofImage img;
     ofVec2f prePos;
