@@ -17,7 +17,7 @@ void ofApp::setup(){
     //only show png files
     dir.allowExt("jpg");
     //populate the directory object
-    int folderLength = dir.listDir();
+    folderLength = dir.listDir();
     cout << "array Length is " << folderLength << endl;
     
     for ( int i = 0; i < folderLength; i ++ ) {
@@ -102,7 +102,14 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if( key == ' ' ){
+        int rIndex = floor(ofRandom(folderLength));
+        testImg = myImages[rIndex];
+        ofBackground(255, 255, 255);
+        for ( int i = 0; i < particles.size(); i ++ ) {
+            particles[i] -> setup(testImg, scl, 80);
+        }
+    }
 }
 
 //--------------------------------------------------------------

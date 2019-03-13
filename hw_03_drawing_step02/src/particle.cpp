@@ -47,8 +47,8 @@ void Particles::draw(){
     //int greyscale = round(red * 0.222 + green * 0.707 + blue * 0.071);
     int greyscale = round(color.r * 0.222 + color.g * 0.707 + color.b * 0.071);
     //cout << "greyscale is " << greyscale << endl;
-    if ( greyscale < 200 ) {
-        ofSetColor(greyscale, 30);
+    if ( greyscale < 100 ) {
+        ofSetColor(greyscale, 15);
         ofDrawLine(pos.x, pos.y, prePos.x, prePos.y);
     }
     prePos = pos;

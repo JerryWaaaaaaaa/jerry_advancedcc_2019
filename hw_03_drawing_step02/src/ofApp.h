@@ -30,6 +30,8 @@ class ofApp : public ofBaseApp{
     
         float zOff = 0;
     
+        int folderLength;
+    
         string path = "../../../hw_03_drawing_step01/bin/data";
 
         ofImage testImg;
