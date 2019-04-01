@@ -1,0 +1,4 @@
+ofxAudioFile
+ofxFft
+ofxUI
+ofxXmlSettings
