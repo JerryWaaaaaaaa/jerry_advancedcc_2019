@@ -13,7 +13,7 @@
 <Widget>
     <Kind>6</Kind>
     <Name>LOW</Name>
-    <HighValue>60.000000000</HighValue>
+    <HighValue>800.000000000</HighValue>
     <LowValue>60.000000000</LowValue>
 </Widget>
 <Widget>
@@ -25,6 +25,16 @@
 <Widget>
     <Kind>6</Kind>
     <Name>HIGH</Name>
-    <HighValue>1177.832519531</HighValue>
-    <LowValue>277.832611084</LowValue>
+    <HighValue>2500.000000000</HighValue>
+    <LowValue>1600.000000000</LowValue>
+</Widget>
+<Widget>
+    <Kind>28</Kind>
+    <Name>SAMPLER</Name>
+    <XValue>0.497536957</XValue>
+    <YValue>nan</YValue>
+    <RColor>0</RColor>
+    <GColor>0</GColor>
+    <BColor>0</BColor>
+    <AColor>255</AColor>
 </Widget>

@@ -61,6 +61,8 @@ class ofApp : public ofBaseApp{
         float *buffer;
         shared_ptr<ofImage> img;
     
+        ofImage *imgDisplay;
+    
         ofSoundPlayer aud;
     
         float vol;

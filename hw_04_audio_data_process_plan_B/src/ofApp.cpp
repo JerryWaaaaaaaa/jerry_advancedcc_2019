@@ -17,6 +17,8 @@ void ofApp::setup(){
     settings.bufferSize = bufferSize;
     settings.numBuffers = 2;
     ofSoundStreamSetup(settings);
+    
+    imgDisplay = new ofImage("black.jpeg");
 
     
     // Cells
@@ -147,8 +149,10 @@ void ofApp::setGUI1()
     gui1->addLabel("IMAGE LOAD");
     gui1->setGlobalButtonDimension(64);
     gui1->addImageButton("LOADIMG", "img/orange.png", false);
-//    gui1->addLabel("IMAGE SAMPLER");
-//    gui1->addImageSampler("SAMPLER", img);
+    gui1->addLabel("IMAGE SAMPLER");
+    gui1->addImageSampler("SAMPLER", imgDisplay);
+    gui1->addLabel("IMAGE DISPLAY");
+    gui1->addImage("IMAGE", imgDisplay);
 
     // final settings
     gui1->setPosition(padding, padding);
@@ -264,7 +268,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
 void ofApp::loadImgFile(){
     ofFileDialogResult result = ofSystemLoadDialog("Load file");
     string path = result.getPath();
-    //cout << path << endl;
+    imgDisplay->load(path);
     img->load(path);
     vector<ofColor> gridColors;
     int imgW = int(img->getWidth()/4);
