@@ -8,11 +8,12 @@ void ofApp::setup(){
     ofSoundStreamSettings settings;
     sampleRate = 44100;
     bufferSize = 512;
+    
     //settings.setInListener(this);
     settings.setOutListener(this);
     settings.sampleRate = sampleRate;
     settings.numOutputChannels = 2; // 2 output
-    settings.numInputChannels = 0; // 1 input
+    settings.numInputChannels = 0; // 0 input
     settings.bufferSize = bufferSize;
     settings.numBuffers = 2;
     ofSoundStreamSetup(settings);
@@ -23,18 +24,7 @@ void ofApp::setup(){
         int x = 230 + 180 * (i%4);
         int y = 30 + 180 * (i/4);
         ofVec2f tempPos = ofVec2f(x, y);
-//        string type = "";
-//        if(i%3 == 0){
-//            type = "timbre";
-//        }
-//        else if(i%3 == 1){
-//            type = "pitch";
-//        }
-//        else if(i%3 == 2){
-//            type = "loudness";
-//        }
         Cell tempc = Cell(tempPos, defaultColor);
-        //tempc = Cell(poses[i], defaultColor, tVec[i%3], HzVec[i/3]);
         cells.push_back(tempc);
     }
     
@@ -72,7 +62,6 @@ void ofApp::draw(){
     
     ofSetColor(red, green, blue);
     ofDrawRectangle(10.0f, 780.0f, 60.0f, 60.0f);
-
 
     // draw cells
     for(int i = 0; i < cells.size(); i++){

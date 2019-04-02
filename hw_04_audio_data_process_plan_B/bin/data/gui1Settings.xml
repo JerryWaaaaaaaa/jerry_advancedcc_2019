@@ -13,7 +13,7 @@
 <Widget>
     <Kind>6</Kind>
     <Name>LOW</Name>
-    <HighValue>800.000000000</HighValue>
+    <HighValue>60.000000000</HighValue>
     <LowValue>60.000000000</LowValue>
 </Widget>
 <Widget>
@@ -25,6 +25,6 @@
 <Widget>
     <Kind>6</Kind>
     <Name>HIGH</Name>
-    <HighValue>2500.000000000</HighValue>
-    <LowValue>1600.000000000</LowValue>
+    <HighValue>1177.832519531</HighValue>
+    <LowValue>277.832611084</LowValue>
 </Widget>

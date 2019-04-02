@@ -1,4 +1,2 @@
-ofxAudioFile
-ofxFft
 ofxUI
 ofxXmlSettings
