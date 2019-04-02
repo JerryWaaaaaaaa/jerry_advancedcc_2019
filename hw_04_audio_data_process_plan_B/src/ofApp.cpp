@@ -19,9 +19,9 @@ void ofApp::setup(){
 
     
     // Cells
-    for(int i = 0; i < 9; i ++ ){
-        int x = 230 + 270 * (i%3);
-        int y = 30 + 270 * (i/3);
+    for(int i = 0; i < 16; i ++ ){
+        int x = 230 + 180 * (i%4);
+        int y = 30 + 180 * (i/4);
         ofVec2f tempPos = ofVec2f(x, y);
 //        string type = "";
 //        if(i%3 == 0){
@@ -46,7 +46,7 @@ void ofApp::setup(){
     
     ddl = NULL;
     textInput = NULL;
-    img = new ofImage("orange.png");
+    img = make_shared<ofImage>("orange.png");
     buffer = new float[512];
     for(int i = 0; i < 512; i++) { buffer[i] = ofNoise(i/100.0); }
     
@@ -56,7 +56,7 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    for(int i = 0; i < 9; i ++ ){
+    for(int i = 0; i < cells.size(); i ++ ){
         cells[i].update();
     }
     
@@ -75,7 +75,7 @@ void ofApp::draw(){
 
 
     // draw cells
-    for(int i = 0; i < 9; i++){
+    for(int i = 0; i < cells.size(); i++){
         cells[i].draw();
     }
 
@@ -89,7 +89,7 @@ void ofApp::exit(){
     delete gui1;
     
     //delete[] buffer;
-    delete img;
+    //delete img;
 }
 
 //--------------------------------------------------------------
@@ -278,10 +278,10 @@ void ofApp::loadImgFile(){
     //cout << path << endl;
     img->load(path);
     vector<ofColor> gridColors;
-    int imgW = int(img->getWidth()/3);
-    int imgH = int(img->getHeight()/3);
-    for(int i = 0; i < 3; i ++ ){
-        for(int j = 0; j < 3; j ++ ){
+    int imgW = int(img->getWidth()/4);
+    int imgH = int(img->getHeight()/4);
+    for(int i = 0; i < 4; i ++ ){
+        for(int j = 0; j < 4; j ++ ){
             int h = 0;
             int s = 0;
             int b = 0;
@@ -316,6 +316,7 @@ void ofApp::loadImgFile(){
 void ofApp::loadAudFile(){
     ofFileDialogResult result = ofSystemLoadDialog("Load file");
     string filepath = result.getPath();
+    ofFmodSetBuffersize(bufferSize);
     aud.load (filepath);
 }
 
@@ -352,13 +353,13 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
     
-    for(int i = 0; i < 9; i ++){
+    for(int i = 0; i < cells.size(); i ++){
         if( (x>=cells[i].pos.x && x<=cells[i].pos.x+cells[i].size.x) && (y>=cells[i].pos.y && y<=cells[i].pos.y+cells[i].size.y) ){
             if(cells[i].state){
                 cells[i].state = !cells[i].state;
             }
             else{
-                for(int j = 0; j < 9; j ++){
+                for(int j = 0; j < cells.size(); j ++){
                     cells[j].state = false;
                 }
                 cells[i].state = true;
@@ -421,8 +422,7 @@ void ofApp::audioOut(ofSoundBuffer &outBuffer){
         outBuffer[i] = sample * volumn;
         outBuffer[i + 1] = sample * volumn;
 
-        float phaseOffset = (600 / (float)sampleRate);
-        //float phaseOffset = (frequency / (float)sampleRate);
+        float phaseOffset = ( frequency / (float)sampleRate);
         phase += phaseOffset;
         
         cout << phaseOffset << " " << phase << endl;

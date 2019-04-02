@@ -4,8 +4,7 @@
 #include "ofMain.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
-#include "ofxAudioFile.h"
-#include "ofxFft.h"
+
 
 class ofApp : public ofBaseApp{
 
@@ -60,7 +59,7 @@ class ofApp : public ofBaseApp{
         bool bdrawPadding;
     
         float *buffer;
-        ofImage *img;
+        shared_ptr<ofImage> img;
     
         ofSoundPlayer aud;
     

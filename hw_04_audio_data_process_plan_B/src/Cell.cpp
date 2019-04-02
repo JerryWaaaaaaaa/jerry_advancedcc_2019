@@ -69,9 +69,9 @@ vector<float> Cell::generateFilter(float phase){
             sample = sin(phase*TWO_PI);
         }
     // deal with frequency
-        frequency = ofMap(s, 0, 255, 60, 2500);
+        frequency = ofMap(s, 0, 255, 60, 2500, true);
     // deal with loudness
-        volumn = ofMap(b, 0, 255, 0.3, 1);
+        volumn = ofMap(b, 0, 255, 0.3, 1, true);
     return {sample, frequency, volumn};
 }
 

@@ -25,7 +25,7 @@ public:
     
     ofColor color;
     ofVec2f pos;
-    ofVec2f size = ofVec2f(260.0f,260.0f);
+    ofVec2f size = ofVec2f(170.0f,170.0f);
     
     int h;
     int s;
