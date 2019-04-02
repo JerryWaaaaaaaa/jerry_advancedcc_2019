@@ -2,6 +2,7 @@
 
 #include "Cell.hpp"
 #include "ofMain.h"
+//KS Note: use ofxGui, which comes with OF
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
 
