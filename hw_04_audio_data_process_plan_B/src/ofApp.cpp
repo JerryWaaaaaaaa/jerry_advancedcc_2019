@@ -422,6 +422,7 @@ void ofApp::audioOut(ofSoundBuffer &outBuffer){
         outBuffer[i + 1] = sample * volumn;
 
         float phaseOffset = (600 / (float)sampleRate);
+        //float phaseOffset = (frequency / (float)sampleRate);
         phase += phaseOffset;
         
         cout << phaseOffset << " " << phase << endl;
