@@ -8,10 +8,11 @@ void ofApp::setup(){
     ofSoundStreamSettings settings;
     sampleRate = 44100;
     bufferSize = 512;
+    settings.setInListener(this);
     settings.setOutListener(this);
     settings.sampleRate = sampleRate;
-    settings.numOutputChannels = 2;
-    settings.numInputChannels = 0;
+    settings.numOutputChannels = 2; // 2 output
+    settings.numInputChannels = 1; // 1 input
     settings.bufferSize = bufferSize;
     ofSoundStreamSetup(settings);
 
@@ -60,6 +61,20 @@ void ofApp::update(){
     
     aud.setVolume(vol);
     
+    ofScopedLock lockIt(audioMutex);
+    
+    //draw polyline
+    waveform.clear();
+    for(size_t i = 0; i < mModulationBuffer.getNumFrames(); i++) {
+        float sample = mModulationBuffer.getSample(i, 0);
+        float x = ofMap(i, 0, mModulationBuffer.getNumFrames(), 0, ofGetWidth());
+        float y = ofMap(sample, -1, 1, 0, ofGetHeight());
+        waveform.addVertex(x, y);
+    }
+    
+    rms = mModulationBuffer.getRMSAmplitude();
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -67,16 +82,21 @@ void ofApp::draw(){
     
     ofBackground(60, 60, 60, 255);
     
-    ofSetColor(red, green, blue);
-    ofDrawRectangle(10.0f, 780.0f, 60.0f, 60.0f);
-
+//    ofSetColor(red, green, blue);
+//    ofDrawRectangle(10.0f, 780.0f, 60.0f, 60.0f);
+//
+//
+//    // draw cells
+//    for(int i = 0; i < 9; i++){
+//        cells[i].draw();
+//    }
     
-    // draw cells
-    for(int i = 0; i < 9; i++){
-        cells[i].draw();
-    }
+    // draw waveform
     
-    //cout << lowMin << endl;
+    ofSetColor(255);
+    ofSetLineWidth(1 + (rms * 30.));
+    waveform.draw();
+    
 
 }
 
@@ -131,7 +151,7 @@ void ofApp::setGUI1()
     
     // display waveform
     gui1->addLabel("WAVEFORM DISPLAY");
-    //gui1->addWaveform("WAVEFORM", buffer, 256, 0.0, 1.0);
+    gui1->addWaveform("WAVEFORM", buffer, bufferSize, 0.0, 1.0, 30);
     //gui1->addLabel("\n");
     gui1->addSpacer();
     
@@ -387,3 +407,28 @@ void ofApp::gotMessage(ofMessage msg){
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
 }
+
+void ofApp::audioIn(ofSoundBuffer &inBuffer){
+    ofScopedLock lockIt(audioMutex);
+    //copy our inbuffer over to our modulation buffer
+    mModulationBuffer = inBuffer;
+    cout << "audio received" << endl;
+}
+
+void ofApp::audioOut(ofSoundBuffer &outBuffer){
+    mModulationBuffer.copyTo(outBuffer);
+    for(int i=0; i < mModulationBuffer.size(); i+=2){
+        mPhase += (400.0f / 44100.0f);
+        float sample;
+        for(int i =0; i < cells.size(); i ++ ){
+            sample = cells[i].generateFilter(mPhase, 3);
+        }
+        sample *= mModulationBuffer[i];
+        outBuffer[i]= mModulationBuffer[i];
+        outBuffer[i+1]= mModulationBuffer[i+1];
+    }
+}
+
+
+
+

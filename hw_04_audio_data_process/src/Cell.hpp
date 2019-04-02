@@ -21,7 +21,7 @@ public:
     void update();
     void draw();
     void updateColor(ofColor color);
-    void generateFilter();
+    float generateFilter(float phase, int waveType);
     
     ofColor color;
     ofVec2f pos;

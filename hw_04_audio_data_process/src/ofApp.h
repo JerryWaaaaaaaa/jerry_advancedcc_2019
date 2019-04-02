@@ -74,4 +74,17 @@ class ofApp : public ofBaseApp{
         // grid array
         vector<Cell> cells;
     
+        // for audio input
+        void audioIn(ofSoundBuffer &inBuffer);
+        void audioOut(ofSoundBuffer &outBuffer);
+        float distortion(float phase, int waveType);
+    
+        std::vector<float> micSamples;
+        ofSoundBuffer mModulationBuffer;
+        mutex audioMutex;
+        float mPhase;
+        float rms;
+        ofPolyline waveform;
+        int currWaveForm = 1;
+    
 };
