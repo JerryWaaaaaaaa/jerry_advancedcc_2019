@@ -16,8 +16,12 @@ void ofApp::setup(){
     settings.numInputChannels = 0; // 0 input
     settings.bufferSize = bufferSize;
     settings.numBuffers = 2;
+	
+	//KS note: use the new syntax
+	// soundStream.setup(settings);
     ofSoundStreamSetup(settings);
-    
+	
+	//KS Note: don't use raw pointers!
     imgDisplay = new ofImage("black.jpeg");
 
     
@@ -189,7 +193,9 @@ void ofApp::setGUI2()
 //---------------------------------------------------------------
 void ofApp::guiEvent(ofxUIEventArgs &e)
 {
-    string name = e.getName();
+	//KS Note: don't use raw pointers!
+	
+	string name = e.getName();
     int kind = e.getKind();
     cout << "got event from: " << name << endl;
     if(kind == OFX_UI_WIDGET_NUMBERDIALER)
@@ -393,6 +399,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 void ofApp::audioOut(ofSoundBuffer &outBuffer){
+	// KS notes: see my comments from Slack about this function. 
     float sample = 0;
     float frequency = 0;
     float volumn = 0;

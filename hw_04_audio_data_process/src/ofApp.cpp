@@ -21,6 +21,7 @@ void ofApp::setup(){
     for(int i = 0; i < 9; i ++ ){
         int x = 230 + 270 * (i%3);
         int y = 30 + 270 * (i/3);
+		//KS note: use glm::vec2
         ofVec2f tempPos = ofVec2f(x, y);
         string type = "";
         if(i%3 == 0){
@@ -45,6 +46,7 @@ void ofApp::setup(){
     
     ddl = NULL;
     textInput = NULL;
+	//dont use raw pointers! Only smart pointers
     img = new ofImage("orange.png");
     buffer = new float[512];
     for(int i = 0; i < 512; i++) { buffer[i] = ofNoise(i/100.0); }
@@ -132,7 +134,9 @@ void ofApp::setGUI1()
 {
     int padding = 10;
     // dashboard title
-    gui1 = new ofxUISuperCanvas("Control Panel");
+	
+	//dont use raw pointers! Only smart pointers
+	gui1 = new ofxUISuperCanvas("Control Panel");
     gui1->addLabel("Press 'h' to hide panel", OFX_UI_FONT_SMALL);
     //gui1->addLabel("\n");
     gui1->addSpacer();
@@ -188,6 +192,7 @@ void ofApp::setGUI1()
 //---------------------------------------------------------------
 void ofApp::setGUI2()
 {
+	//dont use raw pointers! Only smart pointers
     gui2 = new ofxUISuperCanvas("");
     gui2->setDimensions(800.0f, 800.0f);
     
@@ -416,6 +421,7 @@ void ofApp::audioIn(ofSoundBuffer &inBuffer){
 }
 
 void ofApp::audioOut(ofSoundBuffer &outBuffer){
+	//KS note: try copying to the outBuffer at the very end. It's possible the glitchiness is because you are copying to the outBuffer and then re-accessing the outBuffer below. Also, per my note on Slack, instead of multiplying per sample, try using the *= operators built-into ofSoundBuffer
     mModulationBuffer.copyTo(outBuffer);
     for(int i=0; i < mModulationBuffer.size(); i+=2){
         mPhase += (400.0f / 44100.0f);

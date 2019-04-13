@@ -2,9 +2,11 @@
 
 #include "Cell.hpp"
 #include "ofMain.h"
+//KS note: why not use ofxGui?
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
 #include "ofxAudioFile.h"
+//KS note: why include this addon?
 #include "ofxFft.h"
 
 class ofApp : public ofBaseApp{
