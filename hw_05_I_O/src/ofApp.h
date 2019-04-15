@@ -22,6 +22,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
         void generatePoster();
+        void checkOrientation();
         void displayGrid();
         void displayImage();
         void uploadImage();
@@ -52,8 +53,9 @@ class ofApp : public ofBaseApp{
         ofxPanel gui;
     
         // direction of the poster
-        ofxToggle vertical;
-        ofxToggle horizontal;
+        ofxButton vertical;
+        ofxButton horizontal;
+        bool verticalDir = true;
     
         // scale of the poster
         ofxFloatSlider scale;
@@ -90,7 +92,8 @@ class ofApp : public ofBaseApp{
         bool show = true;
     
         // save button
-        ofxButton save;
+        ofxButton saveAsPDF;
+        bool savePDF = false;
     
         // image
         ofImage img;
