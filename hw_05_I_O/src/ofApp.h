@@ -27,6 +27,15 @@ class ofApp : public ofBaseApp{
         void displayImage();
         void uploadImage();
         void saveFrame();
+        void changeColor1();
+        void changeColor2();
+        void changeColor3();
+        void changeColor4();
+        void changeColor5();
+        void changeText1();
+        void changeText2();
+        void changeText3();
+        void changeText4();
         int getIndex(int row, int col);
     
         int counter = 0;
@@ -103,6 +112,26 @@ class ofApp : public ofBaseApp{
         ofTrueTypeFont HelveticaBold;
         ofTrueTypeFont HelveticaLight;
     
+        //color combination button
+        vector<ofxButton> combos;
+        ofxButton colorCombo1;
+        ofxButton colorCombo2;
+        ofxButton colorCombo3;
+        ofxButton colorCombo4;
+        ofxButton colorCombo5;
     
-		
+    
+        //color combination info
+        //background array
+        vector<ofColor> backgrounds;
+    
+        //font array
+        vector<ofColor> fonts;
+    
+        //text buttons
+    ofxButton textExample1;
+    ofxButton textExample2;
+    ofxButton textExample3;
+    ofxButton textExample4;
 };
+    

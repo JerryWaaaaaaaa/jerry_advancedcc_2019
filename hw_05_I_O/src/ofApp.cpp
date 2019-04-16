@@ -1,7 +1,23 @@
 #include "ofApp.h"
 
+
 //--------------------------------------------------------------
 void ofApp::setup(){
+    combos.push_back(colorCombo1);
+    combos.push_back(colorCombo2);
+    combos.push_back(colorCombo3);
+    combos.push_back(colorCombo4);
+    combos.push_back(colorCombo5);
+    backgrounds.push_back(ofColor(172,210,120));
+    backgrounds.push_back(ofColor(245,63,43));
+    backgrounds.push_back(ofColor(41,253,46));
+    backgrounds.push_back(ofColor(255,253,56));
+    backgrounds.push_back(ofColor(247,168,83));
+    fonts.push_back(ofColor(251,13,27));
+    fonts.push_back(ofColor(11,97,112));
+    fonts.push_back(ofColor(155,14,22));
+    fonts.push_back(ofColor(255,56,201));
+    fonts.push_back(ofColor(56,81,237));
     ofSetVerticalSync(true);
     
     rows = 24;
@@ -13,6 +29,19 @@ void ofApp::setup(){
     showImage.addListener(this, &ofApp::displayImage);
     loadImage.addListener(this, &ofApp::uploadImage);
     saveAsPDF.addListener(this, &ofApp::saveFrame);
+    colorCombo1.addListener(this, &ofApp::changeColor1);
+    colorCombo2.addListener(this, &ofApp::changeColor2);
+    colorCombo3.addListener(this, &ofApp::changeColor3);
+    colorCombo4.addListener(this, &ofApp::changeColor4);
+    colorCombo5.addListener(this, &ofApp::changeColor5);
+    textExample1.addListener(this, &ofApp::changeText1);
+    textExample2.addListener(this, &ofApp::changeText2);
+    textExample3.addListener(this, &ofApp::changeText3);
+    textExample4.addListener(this, &ofApp::changeText4);
+
+
+
+
     
     // set up GUI
     gui.setup();
@@ -36,7 +65,15 @@ void ofApp::setup(){
     
     gui.add(backgroundColor.setup("background color", (255,255,255), (0,0,0), (255,255,255)));
     gui.add(fontColor.setup("font color", (30,30,30), (0,0,0), (255,255,255)));
-    
+    gui.add(colorCombo1.setup("colorCombo1"));
+    gui.add(colorCombo2.setup("colorCombo2"));
+    gui.add(colorCombo3.setup("colorCombo3"));
+    gui.add(colorCombo4.setup("colorCombo4"));
+    gui.add(colorCombo5.setup("colorCombo5"));
+    gui.add(textExample1.setup("InspirationalText1"));
+    gui.add(textExample2.setup("InspirationalText2"));
+    gui.add(textExample3.setup("InspirationalText3"));
+    gui.add(textExample4.setup("InspirationalText4"));
     gui.add(showGrid.setup("show grid"));
     gui.add(saveAsPDF.setup("save as PDF"));
     
@@ -161,6 +198,42 @@ void ofApp::saveFrame(){
     counter ++;
 }
 
+void ofApp::changeColor1(){
+    backgroundColor = backgrounds[0];
+    fontColor = fonts[0];
+}
+void ofApp::changeColor2(){
+    backgroundColor = backgrounds[1];
+    fontColor = fonts[1];
+}
+void ofApp::changeColor3(){
+    backgroundColor = backgrounds[2];
+    fontColor = fonts[2];
+}
+void ofApp::changeColor4(){
+    backgroundColor = backgrounds[3];
+    fontColor = fonts[3];
+}
+void ofApp::changeColor5(){
+    backgroundColor = backgrounds[4];
+    fontColor = fonts[4];
+}
+void ofApp::changeText1(){
+    header = "Gucci Gang";
+    text = "Yes, I like the color BLACK.";
+}
+void ofApp::changeText2(){
+    header = "Send Nudes";
+    text = "404 page not found";
+}
+void ofApp::changeText3(){
+    header = "Aesthetic";
+    text = "You are not even close";
+}
+void ofApp::changeText4(){
+    header = "EmotionalBoys2001";
+    text = "Gorgeous hair is the best revenge.";
+}
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
