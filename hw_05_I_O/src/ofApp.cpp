@@ -38,10 +38,6 @@ void ofApp::setup(){
     textExample2.addListener(this, &ofApp::changeText2);
     textExample3.addListener(this, &ofApp::changeText3);
     textExample4.addListener(this, &ofApp::changeText4);
-
-
-
-
     
     // set up GUI
     gui.setup();

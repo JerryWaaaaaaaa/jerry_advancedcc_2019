@@ -129,9 +129,9 @@ class ofApp : public ofBaseApp{
         vector<ofColor> fonts;
     
         //text buttons
-    ofxButton textExample1;
-    ofxButton textExample2;
-    ofxButton textExample3;
-    ofxButton textExample4;
+        ofxButton textExample1;
+        ofxButton textExample2;
+        ofxButton textExample3;
+        ofxButton textExample4;
 };
     
