@@ -18,7 +18,7 @@ class Grid{
     
 public:
     
-    ofVec2f pos; // the position of the grid
+    glm::ivec2 pos; // the position of the grid
     
     string mode; // check what is this grid for
     
@@ -27,8 +27,8 @@ public:
     
     bool solid; // check if the grid is occupied
     
-    Grid(ofVec2f _pos, string _mode);
-    Grid(ofVec2f _pos, string _mode, double _moduleWidth, double _moduleHeight);
+    Grid(glm::ivec2 _pos, string _mode);
+    Grid(glm::ivec2 _pos, string _mode, double _moduleWidth, double _moduleHeight);
     void setup();
     void update(double _moduleWidth, double _moduleHeight);
     void draw();

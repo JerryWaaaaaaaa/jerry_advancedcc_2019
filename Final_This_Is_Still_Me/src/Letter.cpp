@@ -67,7 +67,7 @@ void Letter::setup(){
             double tempW = colProportion[c] * ofApp::moduleWidth / colProportionSum;
             double tempH = rowProportion[r] * ofApp::moduleHeight / rowProportionSum;
             
-            ofVec2f tempPos = ofVec2f(currentX, currentY);
+            glm::ivec2 tempPos = glm::ivec2(currentX, currentY);
             shared_ptr<Grid> tempModule = make_shared<Grid>(tempPos, "letter", tempW, tempH);
             grids[r + c * 4] = tempModule;
             currentY += tempH;
@@ -106,7 +106,7 @@ void Letter::update(ofxSlider<double> &cp1, ofxSlider<double> &cp2, ofxSlider<do
             double tempW = colProportion[c] * ofApp::moduleWidth / colProportionSum;
             double tempH = rowProportion[r] * ofApp::moduleHeight / rowProportionSum;
             
-            ofVec2f tempPos = ofVec2f(currentX, currentY);
+            glm::ivec2 tempPos = glm::ivec2(currentX, currentY);
             shared_ptr<Grid> tempModule = make_shared<Grid>(tempPos, "letter", tempW, tempH);
             grids[r + c * 4] = tempModule;
             currentY += tempH;

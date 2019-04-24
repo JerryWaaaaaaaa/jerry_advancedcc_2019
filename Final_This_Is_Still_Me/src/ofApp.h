@@ -53,4 +53,6 @@ class ofApp : public ofBaseApp{
         ofxSlider<double> rp2;
         ofxSlider<double> rp3;
         ofxSlider<double> rp4;
+    
+    
 };

@@ -32,7 +32,7 @@ public:
     
     int index;
     char input;
-    ofVec2f pos; // origin position of the letter
+    glm::ivec2 pos; // origin position of the letter
     
     Letter(char _input, int _index);
     

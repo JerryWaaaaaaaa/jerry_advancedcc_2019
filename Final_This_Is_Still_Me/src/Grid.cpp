@@ -9,14 +9,14 @@
 #include "ofApp.h"
 #include "Letter.hpp"
 
-Grid::Grid(ofVec2f _pos, string _mode){
+Grid::Grid(glm::ivec2 _pos, string _mode){
     pos = _pos;
     mode = _mode;
     moduleWidth = ofApp::moduleWidth;
     moduleHeight = ofApp::moduleHeight;
 }
 
-Grid::Grid(ofVec2f _pos, string _mode, double _moduleWidth, double _moduleHeight){
+Grid::Grid(glm::ivec2 _pos, string _mode, double _moduleWidth, double _moduleHeight){
     pos = _pos;
     mode = _mode;
     moduleWidth = _moduleWidth;
@@ -38,6 +38,7 @@ void Grid::draw(){
     }
     else if(mode == "letter"){
         ofFill();
+        ofSetLineWidth(1);
     }
     ofSetColor(255, 255, 255);
     ofDrawRectangle(pos.x, pos.y, moduleWidth, moduleHeight);

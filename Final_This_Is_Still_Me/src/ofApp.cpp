@@ -17,7 +17,7 @@ void ofApp::setup(){
         for(int j = 0; j < cols; j ++ ){
             double x = (moduleWidth + gutter) * j;
             double y = (moduleHeight + gutter) * i;
-            ofVec2f tempPos = ofVec2f(x, y);
+            glm::ivec2 tempPos = glm::ivec2(x, y);
             shared_ptr<Grid> tempModule = make_shared<Grid>(tempPos, "poster");
             grids[j + i * cols] = tempModule;
         }
@@ -62,7 +62,6 @@ void ofApp::setup(){
     gui.add(rp2.setup("rp2", 1, 0.5, 3));
     gui.add(rp3.setup("rp3", 1, 0.5, 3));
     gui.add(rp4.setup("rp4", 1, 0.5, 3));
-    
     
 }
 
