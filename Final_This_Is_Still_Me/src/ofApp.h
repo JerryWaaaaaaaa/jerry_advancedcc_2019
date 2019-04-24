@@ -2,8 +2,10 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
+#include "ofxOpenCv.h"
 #include "Grid.hpp"
 #include "Letter.hpp"
+
 
 class ofApp : public ofBaseApp{
 
@@ -25,6 +27,32 @@ class ofApp : public ofBaseApp{
         int textRow = 1; // first text row
         int textCol = 3; // first text col
     
+        ofxPanel gui;
+        ofxSlider<double> cp1;
+        ofxSlider<double> cp2;
+        ofxSlider<double> cp3;
+        ofxSlider<double> cp4;
+        ofxSlider<double> rp1;
+        ofxSlider<double> rp2;
+        ofxSlider<double> rp3;
+        ofxSlider<double> rp4;
+        ofxSlider<int> thresholdChange;
+
+        ofVideoGrabber vidGrabber;
+    
+        ofxCvColorImage colorImg;
+    
+        ofxCvGrayscaleImage grayImage;
+        ofxCvGrayscaleImage grayBg;
+        ofxCvGrayscaleImage grayDiff;
+    
+        ofxCvContourFinder contourFinder;
+    
+        int threshold;
+        bool bLearnBakground;
+    
+        ofFbo pattern;
+    
     
 		void setup();
 		void update();
@@ -43,16 +71,6 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
         int getIndex(int _row, int _col);
-    
-        ofxPanel gui;
-        ofxSlider<double> cp1;
-        ofxSlider<double> cp2;
-        ofxSlider<double> cp3;
-        ofxSlider<double> cp4;
-        ofxSlider<double> rp1;
-        ofxSlider<double> rp2;
-        ofxSlider<double> rp3;
-        ofxSlider<double> rp4;
-    
+        void drawVideo();
     
 };
