@@ -62,22 +62,23 @@ void ofApp::setup(){
     gui.add(rp2.setup("rp2", 1, 0.5, 3));
     gui.add(rp3.setup("rp3", 1, 0.5, 3));
     gui.add(rp4.setup("rp4", 1, 0.5, 3));
-    gui.add(thresholdChange.setup("threshold", 150, 120, 200));
+    gui.add(thresholdChange.setup("threshold", 80, 0, 200));
     
     // set up videoGrabber
     
-    vidGrabber.ofBaseVideoGrabber::setVerbose(true);
-    vidGrabber.setup(320,240);
+    vidGrabber.setVerbose(true);
+    vidGrabber.initGrabber(320,240);
     glm::ivec2 vidSize = glm::ivec2(vidGrabber.getWidth(),vidGrabber.getHeight());
+    cout << vidSize.x << "," << vidSize.y << endl;
 
+    //vidGrabber.setup(320,240);
     colorImg.allocate(vidSize.x, vidSize.y);
     grayImage.allocate(vidSize.x, vidSize.y);
     grayBg.allocate(vidSize.x, vidSize.y);
     grayDiff.allocate(vidSize.x, vidSize.y);
     
-    bLearnBakground = true;
-    threshold = 130;
-    
+    bLearnBackground = true;
+    threshold = thresholdChange;
     
     // set up fbo
     pattern.allocate(vidSize.x, vidSize.y, GL_RGBA);
@@ -99,24 +100,21 @@ void ofApp::update(){
     threshold = thresholdChange;
     
     // update video info
-    bool bNewFrame = false;
     vidGrabber.update();
-    //cout << bNewFrame << endl;
-
-    bNewFrame = vidGrabber.isFrameNew();
     
-    if(bNewFrame){
+    if(vidGrabber.isFrameNew()){
         colorImg.setFromPixels(vidGrabber.getPixels());
         grayImage = colorImg;
-        if(bLearnBakground){
+        
+        if(bLearnBackground == true){
             grayBg = grayImage;
-            bLearnBakground = false;
+            bLearnBackground = false;
             cout << "grayBg created!" << endl;
         }
         grayDiff.absDiff(grayBg, grayImage);
         grayDiff.threshold(threshold);
         
-        contourFinder.findContours(grayDiff, 20, (340*240)/3, 4, true);
+        contourFinder.findContours(grayDiff, 0, 320*240, 5, true);
     }
     
     // draw video in fbo
@@ -127,23 +125,24 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    ofBackground(0, 0, 0);
+    ofBackground(0,0,0);
     
     // draw grid
+    /*
     for(int i = 0; i < rows; i ++ ){
         for(int j = 0; j < cols; j ++ ){
             int index = j + i * cols;
             grids[index]->draw();
         }
     }
+     */
     
     // draw FBO
-    int imgStartPosIndex = getIndex(1, 1);
+    int imgStartPosIndex = getIndex(0, 0);
     int imgEndPosIndex = getIndex(rows - 1, cols - 1);
     glm::ivec2 imgStartPos = grids[imgStartPosIndex]->pos;
     glm::ivec2 imgEndPos = grids[imgEndPosIndex]->pos;
-    
-    pattern.draw(imgStartPos.x,imgStartPos.y,imgEndPos.x-imgStartPos.x,imgEndPos.y-imgStartPos.y);
+    pattern.draw(imgStartPos.x,imgStartPos.y,imgEndPos.x+moduleWidth-imgStartPos.x,imgEndPos.y+moduleHeight-imgStartPos.y);
     
     // draw text
     for(int i = 0; i < letters.size(); i ++ ){
@@ -170,30 +169,41 @@ void ofApp::drawVideo(){
     
     ofClear(255,255,255,0);
     // draw grayBg image
-    grayBg.draw(0,0);
-    
-    //if we want to draw an outline around our blob path
- 
-    ofNoFill();
-    ofSetColor(ofColor::orange);
-    
-    ofBeginShape();
+    // grayImage.draw(0,0);
+
+    /*
     //we loop through each of the detected blobs
-    //contourFinder.nBlobs gives us the number of detected blobs
-        for (int i = 0; i < contourFinder.nBlobs; i++){
-            //each of our blobs contains a vector<ofPoints> pts
-            for(int j=0; j < contourFinder.blobs[i].pts.size(); j++){
-                ofVertex(contourFinder.blobs[i].pts[j].x, contourFinder.blobs[i].pts[j].y);
-            }
+    //contourFinder.nBlobs gives us the number of detected blob
+    ofNoFill();
+    ofSetColor(130,224,255);
+    ofSetLineWidth(3);
+    ofBeginShape();
+    for (int i = 0; i < contourFinder.nBlobs; i++){
+        //each of our blobs contains a vector<ofPoints> pts
+        for(int j=0; j < contourFinder.blobs[i].pts.size(); j+=10){
+            ofVertex(contourFinder.blobs[i].pts[j].x, contourFinder.blobs[i].pts[j].y);
         }
+    }
     ofEndShape();
+    */
     
+    /*
+    // draw ellipse based on boudingRect position
+    for (int i = 0; i < contourFinder.nBlobs; i++){
+        //each of our blobs contains a vector<ofPoints> pts
+        glm::vec3 pos = contourFinder.blobs[i].boundingRect.getCenter();
+        ofFill();
+        ofSetColor(230,230,230);
+        ofDrawEllipse(pos.x, pos.y, 50, 50);
+    }
+     */
+
     pattern.end();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    bLearnBackground = true;
 }
 
 //--------------------------------------------------------------

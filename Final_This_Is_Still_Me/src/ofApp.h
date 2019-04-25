@@ -25,7 +25,7 @@ class ofApp : public ofBaseApp{
         vector<shared_ptr<Letter>> letters; // test letter
     
         int textRow = 1; // first text row
-        int textCol = 3; // first text col
+        int textCol = 2; // first text col
     
         ofxPanel gui;
         ofxSlider<double> cp1;
@@ -49,7 +49,7 @@ class ofApp : public ofBaseApp{
         ofxCvContourFinder contourFinder;
     
         int threshold;
-        bool bLearnBakground;
+        bool bLearnBackground;
     
         ofFbo pattern;
     

@@ -37,8 +37,8 @@ void Grid::draw(){
         ofNoFill();
     }
     else if(mode == "letter"){
-        ofFill();
-        ofSetLineWidth(1);
+        ofNoFill();
+        ofSetLineWidth(3);
     }
     ofSetColor(255, 255, 255);
     ofDrawRectangle(pos.x, pos.y, moduleWidth, moduleHeight);
