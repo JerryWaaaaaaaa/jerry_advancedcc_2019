@@ -3,11 +3,13 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "ofxOpenCv.h"
+#include "ofxCv.h"
+#include "FaceOsc.h"
 #include "Grid.hpp"
 #include "Letter.hpp"
 
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp, public FaceOsc{
 
 
 	public:
@@ -27,6 +29,7 @@ class ofApp : public ofBaseApp{
         int textRow = 1; // first text row
         int textCol = 2; // first text col
     
+        bool showGui;
         ofxPanel gui;
         ofxSlider<double> cp1;
         ofxSlider<double> cp2;
@@ -39,6 +42,11 @@ class ofApp : public ofBaseApp{
         ofxSlider<int> thresholdChange;
 
         ofVideoGrabber vidGrabber;
+        ofBaseVideoDraws *videoSource;
+
+        int camWidth, camHeight;
+        bool bDrawMesh;
+        glm::mat4 rotationMatrix;   
     
         ofxCvColorImage colorImg;
     
@@ -47,13 +55,17 @@ class ofApp : public ofBaseApp{
         ofxCvGrayscaleImage grayDiff;
     
         ofxCvContourFinder contourFinder;
+
     
         int threshold;
         bool bLearnBackground;
     
+    
+        ofxFaceTracker tracker;
+    
         ofFbo pattern;
     
-    
+        void loadSettings();
 		void setup();
 		void update();
 		void draw();
