@@ -33,8 +33,8 @@ void ofApp::loadSettings(){
     if(xml.exists("framerate")) {
         vidGrabber.setDesiredFrameRate(xml.getValue("framerate", 30));
     }
-    camWidth = xml.getValue("width", 1200);
-    camHeight = xml.getValue("height", 800);
+    camWidth = xml.getValue("width", 600);
+    camHeight = xml.getValue("height", 900);
     vidGrabber.initGrabber(camWidth, camHeight);
     xml.setToParent();
     
@@ -114,7 +114,6 @@ void ofApp::setup(){
             tRow ++;
             tCol = textCol;
         }
-
     }
     
     // set up the text
@@ -137,32 +136,40 @@ void ofApp::setup(){
     gui.add(thresholdChange.setup("threshold", 2, 0, 2));
     
     // set up videoGrabber
-    //vidGrabber.setVerbose(true);
-    //vidGrabber.initGrabber(320,240);
     glm::ivec2 vidSize = glm::ivec2(vidGrabber.getWidth(),vidGrabber.getHeight());
-    cout << vidSize.x << "," << vidSize.y << endl;
+    //cout << vidSize.x << "," << vidSize.y << endl;
 
     videoSource = &vidGrabber;
-    //vidGrabber.setup(320,240);
     colorImg.allocate(vidSize.x, vidSize.y);
     grayImage.allocate(vidSize.x, vidSize.y);
-    grayBg.allocate(vidSize.x, vidSize.y);
-    grayDiff.allocate(vidSize.x, vidSize.y);
+    // grayBg.allocate(vidSize.x, vidSize.y);
+    // grayDiff.allocate(vidSize.x, vidSize.y);
     
     bLearnBackground = true;
     threshold = thresholdChange;
     
     // set up fbo
-    pattern.allocate(vidSize.x, vidSize.y, GL_RGBA);
+    pattern.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
     pattern.begin();
     ofClear(255,255,255,0);
     pattern.end();
+    
+    // set up shader
+    if(ofIsGLProgrammableRenderer()){
+        try {
+            wireFrameShader.load("faceShader/wireFrameShader");
+            fillShader.load("faceShader/fillShader");
+        } catch (std::exception e) {
+            ofLog() << e.what() << endl;
+        }
+    }
     
     ofSetBackgroundAuto(true);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    
     
     // update font size
     for(int i = 0; i < letters.size(); i ++ ){
@@ -179,54 +186,69 @@ void ofApp::update(){
         tracker.update(toCv(*videoSource));
         sendFaceOsc(tracker);
         rotationMatrix = tracker.getRotationMatrix();
-        
-        /*
-        // for openCv contour
+
         colorImg.setFromPixels(videoSource->getPixels());
         grayImage = colorImg;
-        if(bLearnBackground == true){
-            grayBg = grayImage;
-            bLearnBackground = false;
-            cout << "grayBg created!" << endl;
-        }
-        grayDiff.absDiff(grayBg, grayImage);
-        grayDiff.threshold(threshold);
-        
-        contourFinder.findContours(grayDiff, 0, 320*240, 5, true);
-        */
-        
+
     }
     
-    // draw video in fbo
-    drawVideo();
-    
-    
-
+    // update drawings in fbo
+    updateFBO();
     
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    ofBackground(0,0,0);
+    ofBackground(10);
     
     // draw grid
-    /*
-    for(int i = 0; i < rows; i ++ ){
-        for(int j = 0; j < cols; j ++ ){
-            int index = j + i * cols;
-            grids[index]->draw();
-        }
+    // drawGrid();
+    
+    // draw face badsed on different shaders
+    ofMesh face = tracker.getImageMesh();;
+    ofMesh oneTime = face;
+    ofMesh twoTime = face;
+    
+    glm::vec3 centroid = face.getCentroid();
+    
+    for( int i = 0; i < twoTime.getNumVertices(); i++ ) {
+        oneTime.getVertices()[i] = (oneTime.getVertices()[i]-centroid) * 0.4;
+        twoTime.getVertices()[i] = (twoTime.getVertices()[i]-centroid) * 3;
     }
-     */
+    
+    // draw the face based on shader
+    fillShader.begin();
+    /*
+    r += rStep;
+    b += bStep;
+    if(r > 1 || r < 0){
+        rStep = -1 * rStep;
+    }
+    if(b > 1 || b < 0){
+        bStep = -1 * bStep;
+    }
+    fillShader.setUniform1f("r", r);
+    fillShader.setUniform1f("b", r);
+    // draw the small mesh in wireframe
+    for(int i = 0; i < grids.size(); i ++ ){
+        ofPushView();
+        ofTranslate(grids[i]->pos.x + moduleWidth/2, grids[i]->pos.y + moduleHeight/2);
+        oneTime.drawWireframe();
+        ofPopView();
+    }
+    fillShader.end();
+    */
+    // draw the small mesh in wireframe
+    ofPushView();
+    ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+    twoTime.drawWireframe();
+    ofPopView();
+    fillShader.end();
     
     // draw FBO
-    int imgStartPosIndex = getIndex(0, 0);
-    int imgEndPosIndex = getIndex(rows - 1, cols - 1);
-    glm::ivec2 imgStartPos = grids[imgStartPosIndex]->pos;
-    glm::ivec2 imgEndPos = grids[imgEndPosIndex]->pos;
-    pattern.draw(imgStartPos.x,imgStartPos.y,imgEndPos.x+moduleWidth-imgStartPos.x,imgEndPos.y+moduleHeight-imgStartPos.y);
-    
+    pattern.draw(0,0);
+
     // draw text
     for(int i = 0; i < letters.size(); i ++ ){
         letters[i]->draw();
@@ -246,60 +268,58 @@ int ofApp::getIndex(int _row, int _col){
 }
 
 //--------------------------------------------------------------
-void ofApp::drawVideo(){
-    // draw video
-    ofSetColor(255);
+void ofApp::updateFBO(){
     
+    // draw the image based on FBO
     pattern.begin();
     
     ofClear(255,255,255,0);
     // draw grayBg image
     // videoSource->draw(0,0);
-
-    /*
-    //we loop through each of the detected blobs
-    //contourFinder.nBlobs gives us the number of detected blob
-    ofNoFill();
-    ofSetColor(130,224,255);
-    ofSetLineWidth(3);
-    ofBeginShape();
-    for (int i = 0; i < contourFinder.nBlobs; i++){
-        //each of our blobs contains a vector<ofPoints> pts
-        for(int j=0; j < contourFinder.blobs[i].pts.size(); j+=10){
-            ofVertex(contourFinder.blobs[i].pts[j].x, contourFinder.blobs[i].pts[j].y);
-        }
-    }
-    ofEndShape();
-    */
     
-    /*
-    // draw ellipse based on boudingRect position
-    for (int i = 0; i < contourFinder.nBlobs; i++){
-        //each of our blobs contains a vector<ofPoints> pts
-        glm::vec3 pos = contourFinder.blobs[i].boundingRect.getCenter();
-        ofFill();
-        ofSetColor(230,230,230);
-        ofDrawEllipse(pos.x, pos.y, 50, 50);
-    }
-     */
+    // draw eys mouse and nose
+    checkLeftEye = drawFacePart(ofxFaceTracker::LEFT_EYE, checkLeftEye, 2);
+    checkRightEye = drawFacePart(ofxFaceTracker::RIGHT_EYE, checkRightEye, 1);
+    checkNose = drawFacePart(ofxFaceTracker::NOSE_BRIDGE, checkNose, 1);
+    checkMouse = drawFacePart(ofxFaceTracker::OUTER_MOUTH, checkMouse, 2);
     
-    // draw the mesh
-    ofSetLineWidth(1);
-    //tracker.draw();
-    ofMesh face = tracker.getImageMesh();
-    
-    ofMesh oneTime = face;
-    ofMesh twoTime = face;
-
-    glm::vec3 centroid = twoTime.getCentroid();
-    for( int i = 0; i < twoTime.getNumVertices(); i++ ) {
-        oneTime.getVertices()[i] = (oneTime.getVertices()[i]) - centroid/2;
-        twoTime.getVertices()[i] = (twoTime.getVertices()[i]) * 2 - centroid/2;
-    }
-    oneTime.drawWireframe();
-    twoTime.drawWireframe();
-
     pattern.end();
+    
+}
+
+//--------------------------------------------------------------
+void ofApp::drawGrid(){
+     for(int i = 0; i < rows; i ++ ){
+         for(int j = 0; j < cols; j ++ ){
+             int index = j + i * cols;
+             grids[index]->draw();
+         }
+     }
+}
+
+//--------------------------------------------------------------
+int ofApp::drawFacePart(ofxFaceTracker::Feature feature, int checkSet, int scale){
+    ofImage featureImage;
+    ofVec2f featurePos = tracker.getImageFeature(feature).getCentroid2D();
+    featureImage.setFromPixels(grayImage.getPixels());
+    //featureImage.crop(featurePos.x - moduleWidth/2, featurePos.y - moduleHeight/2, moduleWidth, moduleHeight);
+    featureImage.crop(featurePos.x - 30, featurePos.y - 30, 60, 60);
+    featureImage.resize(floor(moduleWidth) * scale, floor(moduleHeight) * scale);
+    if(checkSet == 0){
+        int row = floor(ofRandom(2, rows-3));
+        int col = floor(ofRandom(2, cols-2));
+        int index = getIndex(row, col);
+        if(!grids[index]->solid){
+            grids[index]->solid = true;
+            featureImage.draw(grids[index]->pos.x, grids[index]->pos.y);
+            return index;
+        }else{
+            return 0;
+        }
+    }else{
+        featureImage.draw(grids[checkSet]->pos.x, grids[checkSet]->pos.y);
+        return checkSet;
+    }
 }
 
 //--------------------------------------------------------------

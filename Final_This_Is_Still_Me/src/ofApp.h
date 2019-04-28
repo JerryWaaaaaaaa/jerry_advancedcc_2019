@@ -17,17 +17,22 @@ class ofApp : public ofBaseApp, public FaceOsc{
         static double moduleWidth;
         static double moduleHeight;
     
-        const int cols = 12;
-        const int rows = 8;
-        const int gutter = 10;
+        const int cols = 8;
+        const int rows = 12;
+        const int gutter = 6;
     
         static vector<shared_ptr<Grid>> grids; // array that holds the Grid objects
     
         string header = "this is still me";
         vector<shared_ptr<Letter>> letters; // test letter
     
-        int textRow = 1; // first text row
-        int textCol = 2; // first text col
+        int textRow = 4; // first text row
+        int textCol = 1; // first text col
+    
+        float r = 1.0f; // for shader control
+        float b = 0.0f;
+        float rStep = 0.001;
+        float bStep = 0.001;
     
         bool showGui;
         ofxPanel gui;
@@ -56,12 +61,16 @@ class ofApp : public ofBaseApp, public FaceOsc{
     
         ofxCvContourFinder contourFinder;
 
-    
         int threshold;
         bool bLearnBackground;
     
-    
         ofxFaceTracker tracker;
+    
+        // check if the senses are drawn
+        int checkLeftEye = 0;
+        int checkRightEye = 0;
+        int checkMouse = 0;
+        int checkNose = 0;
     
         ofFbo pattern;
     
@@ -83,6 +92,11 @@ class ofApp : public ofBaseApp, public FaceOsc{
 		void gotMessage(ofMessage msg);
     
         int getIndex(int _row, int _col);
-        void drawVideo();
+        void updateFBO();
+        void drawGrid();
+        int drawFacePart(ofxFaceTracker::Feature feature, int checkSet, int scale);
+    
+        ofShader wireFrameShader;
+        ofShader fillShader;
     
 };
