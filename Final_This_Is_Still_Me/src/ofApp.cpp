@@ -178,6 +178,9 @@ void ofApp::update(){
 
         colorImg.setFromPixels(videoSource->getPixels());
         grayImage = colorImg;
+        grayScale.setFromPixels(grayImage.getPixels());
+       
+        
         
         // update font size
         glm::ivec2 leftEye = tracker.getImageFeature(ofxFaceTracker::LEFT_EYE).getCentroid2D();
@@ -194,10 +197,6 @@ void ofApp::update(){
         rp2 = faceCenter.y - (leftEye.y + rightEye.y)/2;
         rp3 = mouth.y - faceCenter.y;
         rp4 = faceCenter.y + faceHeight/2 - mouth.y;
-        
-        
-    }else{
-        // grayImage.set(220);
     }
     
     // update text
@@ -219,45 +218,58 @@ void ofApp::draw(){
     // drawGrid();
     
     // draw face badsed on different shaders
-    ofMesh face = tracker.getImageMesh();;
-    ofMesh oneTime = face;
-    ofMesh twoTime = face;
-    
-    glm::vec3 centroid = face.getCentroid();
-    
-    for( int i = 0; i < twoTime.getNumVertices(); i++ ) {
-        oneTime.getVertices()[i] = (oneTime.getVertices()[i]-centroid) * 0.4;
-        twoTime.getVertices()[i] = (twoTime.getVertices()[i]-centroid) * 3;
-    }
-    
-    // draw the face based on shader
-    fillShader.begin();
-    /*
-    r += rStep;
-    b += bStep;
-    if(r > 1 || r < 0){
-        rStep = -1 * rStep;
-    }
-    if(b > 1 || b < 0){
-        bStep = -1 * bStep;
-    }
-    fillShader.setUniform1f("r", r);
-    fillShader.setUniform1f("b", r);
-    // draw the small mesh in wireframe
-    for(int i = 0; i < grids.size(); i ++ ){
+    if(tracker.getFound()){
+        ofMesh face = tracker.getImageMesh();;
+        ofMesh oneTime = face;
+        ofMesh twoTime = face;
+        
+        glm::vec3 centroid = face.getCentroid();
+        
+        for( int i = 0; i < twoTime.getNumVertices(); i++ ) {
+            oneTime.getVertices()[i] = (oneTime.getVertices()[i]-centroid) * 0.4;
+            twoTime.getVertices()[i] = (twoTime.getVertices()[i]-centroid) * 3.6;
+        }
+        
+        // draw the face based on shader
+        fillShader.begin();
+        /*
+        r += rStep;
+        b += bStep;
+        if(r > 1 || r < 0){
+            rStep = -1 * rStep;
+        }
+        if(b > 1 || b < 0){
+            bStep = -1 * bStep;
+        }
+        fillShader.setUniform1f("r", r);
+        fillShader.setUniform1f("b", r);
+        // draw the small mesh in wireframe
+        for(int i = 0; i < grids.size(); i ++ ){
+            ofPushView();
+            ofTranslate(grids[i]->pos.x + moduleWidth/2, grids[i]->pos.y + moduleHeight/2);
+            oneTime.drawWireframe();
+            ofPopView();
+        }
+        fillShader.end();
+        */
+        // draw the small mesh in wireframe
         ofPushView();
-        ofTranslate(grids[i]->pos.x + moduleWidth/2, grids[i]->pos.y + moduleHeight/2);
-        oneTime.drawWireframe();
+        ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+        twoTime.drawWireframe();
         ofPopView();
+        fillShader.end();
+    } else {
+        fillShader.begin();
+        
+        ofPushView();
+        ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+        ofSpherePrimitive sphere;
+        sphere.set(ofGetWidth()/3, 10);
+        sphere.drawWireframe();
+        ofPopView();
+        
+        fillShader.end();
     }
-    fillShader.end();
-    */
-    // draw the small mesh in wireframe
-    ofPushView();
-    ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
-    twoTime.drawWireframe();
-    ofPopView();
-    fillShader.end();
     
     // draw FBO
     pattern.draw(0,0);
@@ -291,10 +303,12 @@ void ofApp::updateFBO(){
     // videoSource->draw(0,0);
     
     // draw eys mouse and nose
-    checkLeftEye = drawFacePart(ofxFaceTracker::LEFT_EYE, checkLeftEye, 2);
-    checkRightEye = drawFacePart(ofxFaceTracker::RIGHT_EYE, checkRightEye, 1);
-    checkNose = drawFacePart(ofxFaceTracker::NOSE_BRIDGE, checkNose, 1);
-    checkMouse = drawFacePart(ofxFaceTracker::OUTER_MOUTH, checkMouse, 2);
+    if(tracker.getFound()){
+        checkLeftEye = drawFacePart(ofxFaceTracker::LEFT_EYE, checkLeftEye, 2);
+        checkRightEye = drawFacePart(ofxFaceTracker::RIGHT_EYE, checkRightEye, 1);
+        checkNose = drawFacePart(ofxFaceTracker::NOSE_BRIDGE, checkNose, 1);
+        checkMouse = drawFacePart(ofxFaceTracker::OUTER_MOUTH, checkMouse, 2);
+    }
     
     pattern.end();
     
@@ -312,11 +326,10 @@ void ofApp::drawGrid(){
 
 //--------------------------------------------------------------
 int ofApp::drawFacePart(ofxFaceTracker::Feature feature, int checkSet, int scale){
-    ofImage featureImage;
+    ofImage featureImage = grayScale;
     glm::ivec2 featurePos = tracker.getImageFeature(feature).getCentroid2D();
-    featureImage.setFromPixels(grayImage.getPixels());
-    featureImage.crop(featurePos.x - 30, featurePos.y - 30, 60, 60);
-    featureImage.resize(floor(moduleWidth) * scale, floor(moduleHeight) * scale);
+    featureImage.crop(floor(featurePos.x - 30), floor(featurePos.y - 30), 60, 60);
+    // featureImage.resize(floor(moduleWidth) * scale, floor(moduleHeight) * scale);
     if(checkSet == 0){
         int row = floor(ofRandom(2, rows-3));
         int col = floor(ofRandom(2, cols-2));

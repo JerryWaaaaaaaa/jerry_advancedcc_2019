@@ -26,7 +26,7 @@ class ofApp : public ofBaseApp, public FaceOsc{
         string header = "this is still me";
         vector<shared_ptr<Letter>> letters; // test letter
     
-        int textRow = 4; // first text row
+        int textRow = 2; // first text row
         int textCol = 1; // first text col
     
         float r = 1.0f; // for shader control
@@ -62,8 +62,8 @@ class ofApp : public ofBaseApp, public FaceOsc{
     
         ofxCvGrayscaleImage grayImage;
         ofxCvGrayscaleImage grayBg;
+        ofImage grayScale;
         ofxCvGrayscaleImage grayDiff;
-    
         ofxCvContourFinder contourFinder;
 
         int threshold;
