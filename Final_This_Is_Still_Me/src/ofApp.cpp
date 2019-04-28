@@ -99,6 +99,9 @@ void ofApp::setup(){
         grids[i]->setup();
     }
     
+    cp1 = cp2 = cp3 = cp4 = 1.0;
+    rp1 = rp2 = rp3 = rp4 = 1.0;
+    
     // make the header text
     int tRow = textRow;
     int tCol = textCol;
@@ -125,14 +128,6 @@ void ofApp::setup(){
     // set up GUI
     showGui = true;
     gui.setup();
-    gui.add(cp1.setup("cp1", 1, 0.5, 3));
-    gui.add(cp2.setup("cp2", 1, 0.5, 3));
-    gui.add(cp3.setup("cp3", 1, 0.5, 3));
-    gui.add(cp4.setup("cp4", 1, 0.5, 3));
-    gui.add(rp1.setup("rp1", 1, 0.5, 3));
-    gui.add(rp2.setup("rp2", 1, 0.5, 3));
-    gui.add(rp3.setup("rp3", 1, 0.5, 3));
-    gui.add(rp4.setup("rp4", 1, 0.5, 3));
     gui.add(thresholdChange.setup("threshold", 2, 0, 2));
     
     // set up videoGrabber
@@ -170,12 +165,6 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    
-    // update font size
-    for(int i = 0; i < letters.size(); i ++ ){
-        letters[i]->update(cp1, cp2, cp3, cp4, rp1, rp2, rp3, rp4);
-    }
-    
     // update threshold
     threshold = thresholdChange;
     
@@ -189,7 +178,31 @@ void ofApp::update(){
 
         colorImg.setFromPixels(videoSource->getPixels());
         grayImage = colorImg;
-
+        
+        // update font size
+        glm::ivec2 leftEye = tracker.getImageFeature(ofxFaceTracker::LEFT_EYE).getCentroid2D();
+        glm::ivec2 rightEye = tracker.getImageFeature(ofxFaceTracker::RIGHT_EYE).getCentroid2D();
+        glm::ivec2 faceCenter = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getCentroid2D();
+        glm::ivec2 mouth = tracker.getImageFeature(ofxFaceTracker::OUTER_MOUTH).getCentroid2D();
+        double faceWidth = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getBoundingBox().getWidth();
+        double faceHeight = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getBoundingBox().getHeight();
+        cp1 = leftEye.x - (faceCenter.x - faceWidth/2);
+        cp2 = faceCenter.x - leftEye.x;
+        cp3 = rightEye.x - faceCenter.x;
+        cp4 = faceCenter.x + faceWidth/2 - rightEye.x;
+        rp1 = (leftEye.y + rightEye.y)/2 - (faceCenter.y - faceHeight/2);
+        rp2 = faceCenter.y - (leftEye.y + rightEye.y)/2;
+        rp3 = mouth.y - faceCenter.y;
+        rp4 = faceCenter.y + faceHeight/2 - mouth.y;
+        
+        
+    }else{
+        // grayImage.set(220);
+    }
+    
+    // update text
+    for(int i = 0; i < letters.size(); i ++ ){
+        letters[i]->update(cp1, cp2, cp3, cp4, rp1, rp2, rp3, rp4);
     }
     
     // update drawings in fbo
@@ -300,9 +313,8 @@ void ofApp::drawGrid(){
 //--------------------------------------------------------------
 int ofApp::drawFacePart(ofxFaceTracker::Feature feature, int checkSet, int scale){
     ofImage featureImage;
-    ofVec2f featurePos = tracker.getImageFeature(feature).getCentroid2D();
+    glm::ivec2 featurePos = tracker.getImageFeature(feature).getCentroid2D();
     featureImage.setFromPixels(grayImage.getPixels());
-    //featureImage.crop(featurePos.x - moduleWidth/2, featurePos.y - moduleHeight/2, moduleWidth, moduleHeight);
     featureImage.crop(featurePos.x - 30, featurePos.y - 30, 60, 60);
     featureImage.resize(floor(moduleWidth) * scale, floor(moduleHeight) * scale);
     if(checkSet == 0){

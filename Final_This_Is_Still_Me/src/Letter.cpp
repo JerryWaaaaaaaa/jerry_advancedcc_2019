@@ -8,7 +8,7 @@
 #include "Letter.hpp"
 #include "ofApp.h"
 
-vector<double> Letter::colProportion = {2,1,1,1}; // proportion of each column
+vector<double> Letter::colProportion = {1,1,1,1}; // proportion of each column
 vector<double> Letter::rowProportion = {1,1,1,1}; // proportion of each row
 
 vector<vector<int>> Letter::letters {
@@ -82,7 +82,7 @@ void Letter::setup(){
     
 }
 
-void Letter::update(ofxSlider<double> &cp1, ofxSlider<double> &cp2, ofxSlider<double> &cp3, ofxSlider<double> &cp4, ofxSlider<double> &rp1, ofxSlider<double> &rp2, ofxSlider<double> &rp3, ofxSlider<double> &rp4){
+void Letter::update(double cp1, double cp2, double cp3, double cp4, double rp1, double rp2, double rp3, double rp4){
     
     // update proportion
     colProportion = {cp1, cp2, cp3, cp4};

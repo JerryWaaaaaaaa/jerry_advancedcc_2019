@@ -36,6 +36,7 @@ class ofApp : public ofBaseApp, public FaceOsc{
     
         bool showGui;
         ofxPanel gui;
+        /*
         ofxSlider<double> cp1;
         ofxSlider<double> cp2;
         ofxSlider<double> cp3;
@@ -44,7 +45,11 @@ class ofApp : public ofBaseApp, public FaceOsc{
         ofxSlider<double> rp2;
         ofxSlider<double> rp3;
         ofxSlider<double> rp4;
+        */
         ofxSlider<int> thresholdChange;
+    
+        double cp1, cp2, cp3, cp4;
+        double rp1, rp2, rp3, rp4;
 
         ofVideoGrabber vidGrabber;
         ofBaseVideoDraws *videoSource;
