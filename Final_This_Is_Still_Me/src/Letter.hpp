@@ -40,7 +40,7 @@ public:
     /*
     void update(ofxSlider<double> &cp1, ofxSlider<double> &cp2, ofxSlider<double> &cp3, ofxSlider<double> &cp4, ofxSlider<double> &rp1, ofxSlider<double> &rp2, ofxSlider<double> &rp3, ofxSlider<double> &rp4);
      */
-    void update(double cp1, double cp2, double cp3, double cp4, double rp1, double rp2, double rp3, double rp4);
+    void update(float cp1, float cp2, float cp3, float cp4, float rp1, float rp2, float rp3, float rp4);
     void draw();
     
     

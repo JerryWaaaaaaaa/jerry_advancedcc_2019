@@ -48,8 +48,8 @@ class ofApp : public ofBaseApp, public FaceOsc{
         */
         ofxSlider<int> thresholdChange;
     
-        double cp1, cp2, cp3, cp4;
-        double rp1, rp2, rp3, rp4;
+        float cp1, cp2, cp3, cp4;
+        float rp1, rp2, rp3, rp4;
 
         ofVideoGrabber vidGrabber;
         ofBaseVideoDraws *videoSource;
@@ -76,6 +76,7 @@ class ofApp : public ofBaseApp, public FaceOsc{
         int checkRightEye = 0;
         int checkMouse = 0;
         int checkNose = 0;
+        int checkJaw = 0;
     
         ofFbo pattern;
     
@@ -99,9 +100,11 @@ class ofApp : public ofBaseApp, public FaceOsc{
         int getIndex(int _row, int _col);
         void updateFBO();
         void drawGrid();
-        int drawFacePart(ofxFaceTracker::Feature feature, int checkSet, int scale);
+        int drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, float scale);
     
         ofShader wireFrameShader;
         ofShader fillShader;
+    
+    
     
 };

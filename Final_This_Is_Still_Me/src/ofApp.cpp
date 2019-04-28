@@ -137,6 +137,7 @@ void ofApp::setup(){
     videoSource = &vidGrabber;
     colorImg.allocate(vidSize.x, vidSize.y);
     grayImage.allocate(vidSize.x, vidSize.y);
+    grayScale.allocate(vidSize.x, vidSize.y, OF_IMAGE_GRAYSCALE);
     // grayBg.allocate(vidSize.x, vidSize.y);
     // grayDiff.allocate(vidSize.x, vidSize.y);
     
@@ -179,25 +180,32 @@ void ofApp::update(){
         colorImg.setFromPixels(videoSource->getPixels());
         grayImage = colorImg;
         grayScale.setFromPixels(grayImage.getPixels());
-       
-        
         
         // update font size
-        glm::ivec2 leftEye = tracker.getImageFeature(ofxFaceTracker::LEFT_EYE).getCentroid2D();
-        glm::ivec2 rightEye = tracker.getImageFeature(ofxFaceTracker::RIGHT_EYE).getCentroid2D();
-        glm::ivec2 faceCenter = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getCentroid2D();
-        glm::ivec2 mouth = tracker.getImageFeature(ofxFaceTracker::OUTER_MOUTH).getCentroid2D();
-        double faceWidth = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getBoundingBox().getWidth();
-        double faceHeight = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getBoundingBox().getHeight();
-        cp1 = leftEye.x - (faceCenter.x - faceWidth/2);
-        cp2 = faceCenter.x - leftEye.x;
-        cp3 = rightEye.x - faceCenter.x;
-        cp4 = faceCenter.x + faceWidth/2 - rightEye.x;
-        rp1 = (leftEye.y + rightEye.y)/2 - (faceCenter.y - faceHeight/2);
-        rp2 = faceCenter.y - (leftEye.y + rightEye.y)/2;
-        rp3 = mouth.y - faceCenter.y;
-        rp4 = faceCenter.y + faceHeight/2 - mouth.y;
+        if(tracker.getFound()){
+            glm::ivec2 leftEye = tracker.getImageFeature(ofxFaceTracker::LEFT_EYE).getCentroid2D();
+            glm::ivec2 rightEye = tracker.getImageFeature(ofxFaceTracker::RIGHT_EYE).getCentroid2D();
+            glm::ivec2 faceCenter = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getCentroid2D();
+            glm::ivec2 mouth = tracker.getImageFeature(ofxFaceTracker::OUTER_MOUTH).getCentroid2D();
+            float faceWidth = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getBoundingBox().getWidth();
+            float faceHeight = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getBoundingBox().getHeight();
+            cp1 = leftEye.x - (faceCenter.x - faceWidth/2);
+            cp2 = faceCenter.x - leftEye.x;
+            cp3 = rightEye.x - faceCenter.x;
+            cp4 = faceCenter.x + faceWidth/2 - rightEye.x;
+            rp1 = (leftEye.y + rightEye.y)/2 - (faceCenter.y - faceHeight/2);
+            rp2 = faceCenter.y - (leftEye.y + rightEye.y)/2;
+            rp3 = mouth.y - faceCenter.y;
+            rp4 = faceCenter.y + faceHeight/2 - mouth.y;
+        }else{
+            checkLeftEye = 0;
+            checkRightEye = 0;
+            checkMouse = 0;
+            checkNose = 0;
+            checkJaw = 0;
+        }
     }
+    ofLog() << checkLeftEye << " " << checkRightEye << " " << checkMouse << " " << checkNose << " " << checkJaw << endl;
     
     // update text
     for(int i = 0; i < letters.size(); i ++ ){
@@ -232,32 +240,13 @@ void ofApp::draw(){
         
         // draw the face based on shader
         fillShader.begin();
-        /*
-        r += rStep;
-        b += bStep;
-        if(r > 1 || r < 0){
-            rStep = -1 * rStep;
-        }
-        if(b > 1 || b < 0){
-            bStep = -1 * bStep;
-        }
-        fillShader.setUniform1f("r", r);
-        fillShader.setUniform1f("b", r);
-        // draw the small mesh in wireframe
-        for(int i = 0; i < grids.size(); i ++ ){
-            ofPushView();
-            ofTranslate(grids[i]->pos.x + moduleWidth/2, grids[i]->pos.y + moduleHeight/2);
-            oneTime.drawWireframe();
-            ofPopView();
-        }
-        fillShader.end();
-        */
-        // draw the small mesh in wireframe
         ofPushView();
         ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
         twoTime.drawWireframe();
         ofPopView();
         fillShader.end();
+        
+        
     } else {
         fillShader.begin();
         
@@ -299,15 +288,15 @@ void ofApp::updateFBO(){
     pattern.begin();
     
     ofClear(255,255,255,0);
-    // draw grayBg image
     // videoSource->draw(0,0);
     
     // draw eys mouse and nose
     if(tracker.getFound()){
-        checkLeftEye = drawFacePart(ofxFaceTracker::LEFT_EYE, checkLeftEye, 2);
-        checkRightEye = drawFacePart(ofxFaceTracker::RIGHT_EYE, checkRightEye, 1);
-        checkNose = drawFacePart(ofxFaceTracker::NOSE_BRIDGE, checkNose, 1);
-        checkMouse = drawFacePart(ofxFaceTracker::OUTER_MOUTH, checkMouse, 2);
+        checkLeftEye = drawFacePart(ofxFaceTracker::LEFT_EYE, checkLeftEye, 2.0f);
+        checkRightEye = drawFacePart(ofxFaceTracker::RIGHT_EYE, checkRightEye, 1.0f);
+        checkNose = drawFacePart(ofxFaceTracker::NOSE_BASE, checkNose, 1.0f);
+        // checkJaw = drawFacePart(ofxFaceTracker::LEFT_JAW, checkJaw, 1.0f);
+        checkMouse = drawFacePart(ofxFaceTracker::OUTER_MOUTH, checkMouse, 2.0f);
     }
     
     pattern.end();
@@ -325,24 +314,26 @@ void ofApp::drawGrid(){
 }
 
 //--------------------------------------------------------------
-int ofApp::drawFacePart(ofxFaceTracker::Feature feature, int checkSet, int scale){
+int ofApp::drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, float scale){
     ofImage featureImage = grayScale;
-    glm::ivec2 featurePos = tracker.getImageFeature(feature).getCentroid2D();
+    ofVec2f featurePos = tracker.getImageFeature(feature).getCentroid2D();
     featureImage.crop(floor(featurePos.x - 30), floor(featurePos.y - 30), 60, 60);
     // featureImage.resize(floor(moduleWidth) * scale, floor(moduleHeight) * scale);
     if(checkSet == 0){
         int row = floor(ofRandom(2, rows-3));
         int col = floor(ofRandom(2, cols-2));
         int index = getIndex(row, col);
+        bool set = false;
+        
         if(!grids[index]->solid){
             grids[index]->solid = true;
-            featureImage.draw(grids[index]->pos.x, grids[index]->pos.y);
+            featureImage.draw(grids[index]->pos.x, grids[index]->pos.y, moduleWidth * scale, moduleHeight * scale);
             return index;
         }else{
             return 0;
         }
     }else{
-        featureImage.draw(grids[checkSet]->pos.x, grids[checkSet]->pos.y);
+        featureImage.draw(grids[checkSet]->pos.x, grids[checkSet]->pos.y, moduleWidth * scale, moduleHeight * scale);
         return checkSet;
     }
 }

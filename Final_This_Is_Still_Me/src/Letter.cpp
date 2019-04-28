@@ -82,7 +82,7 @@ void Letter::setup(){
     
 }
 
-void Letter::update(double cp1, double cp2, double cp3, double cp4, double rp1, double rp2, double rp3, double rp4){
+void Letter::update(float cp1, float cp2, float cp3, float cp4, float rp1, float rp2, float rp3, float rp4){
     
     // update proportion
     colProportion = {cp1, cp2, cp3, cp4};
