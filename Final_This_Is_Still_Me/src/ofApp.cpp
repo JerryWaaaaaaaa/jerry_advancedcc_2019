@@ -73,6 +73,8 @@ void ofApp::loadSettings(){
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+    ofSetFrameRate(60);
+    
     ofSetVerticalSync(true);
     loadSettings();
     
@@ -167,6 +169,10 @@ void ofApp::setup(){
     shapeX = ofRandom(0, ofGetWidth());
     shapeY = ofRandom(0, ofGetHeight());
     
+    // set up pdf rendering
+    pdfRendering = false;
+    oneShot = false;
+    
     ofSetBackgroundAuto(true);
 }
 
@@ -231,6 +237,10 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
+    if(oneShot){
+        ofBeginSaveScreenAsPDF("screenshot-"+ofGetTimestampString()+".pdf", false);
+    }
+    
     ofBackground(10);
     
     // draw face badsed on different shaders
@@ -287,6 +297,11 @@ void ofApp::draw(){
        gui.draw();
     }
     */
+    
+    if( oneShot ){
+        ofEndSaveScreenAsPDF();
+        oneShot = false;
+    }
 
 }
 
@@ -417,11 +432,23 @@ void ofApp::drawShapes(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     switch(key){
-        case 'b':
-            bLearnBackground = true;
-            break;
         case 'g':
             showGui = !showGui;
+            break;
+        case 'r':
+            pdfRendering = !pdfRendering;
+            if( pdfRendering ){
+                ofSetFrameRate(12);  // so it doesn't generate tons of pages
+                ofBeginSaveScreenAsPDF("recording-"+ofGetTimestampString()+".pdf", true);
+            }else{
+                ofSetFrameRate(60);
+                ofEndSaveScreenAsPDF();
+            }
+            break;
+        case 's':
+            if( !pdfRendering ){
+                oneShot = true;
+            }
             break;
     }
 }

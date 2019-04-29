@@ -77,6 +77,9 @@ class ofApp : public ofBaseApp, public FaceOsc{
         ofTrueTypeFont font;
         float fontOffset = 0;
     
+        bool pdfRendering;
+        bool oneShot;
+    
         int shapeX;
         int shapeY;
         int xOffset;
