@@ -40,7 +40,7 @@ void Grid::draw(){
     }
     else if(mode == "letter"){
         ofFill();
-        ofSetColor(230);
+        ofSetColor(180);
     }
     ofDrawRectangle(pos.x-1, pos.y-1, moduleWidth+1, moduleHeight+1);
 }

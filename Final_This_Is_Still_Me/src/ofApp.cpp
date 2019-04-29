@@ -163,7 +163,7 @@ void ofApp::setup(){
     }
     
     // set up the font
-    font.load("fonts/Exo-Medium.ttf", 20, true, true, true);
+    font.load("fonts/Exo-Medium.ttf", 20, true, true, true, 0);
     
     // set up the shape original pos
     shapeX = ofRandom(0, ofGetWidth());
@@ -210,7 +210,7 @@ void ofApp::update(){
             rp4 = faceCenter.y + faceHeight/2 - mouth.y;
         }
     }
-    ofLog() << checkLeftEye << " " << checkRightEye << " " << checkMouse << " " << checkNose << endl;
+    // ofLog() << checkLeftEye << " " << checkRightEye << " " << checkMouse << " " << checkNose << endl;
     
     // update text
     for(int i = 0; i < letters.size(); i ++ ){
@@ -355,6 +355,7 @@ int ofApp::drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, fl
     featureImage.crop(floor(featurePos.x - 30), floor(featurePos.y - 30), 60, 60);
     float w = (moduleWidth + gutter) * (scale - 1.0f) + moduleWidth;
     float h = (moduleHeight + gutter) * (scale - 1.0f) + moduleHeight;
+    featureImage.resize(w, h);
     // featureImage.resize(floor(moduleWidth) * scale, floor(moduleHeight) * scale);
     if(checkSet == 0){
         int row = floor(ofRandom(2, rows-2));
@@ -377,13 +378,31 @@ int ofApp::drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, fl
                     grids[index + i + j * cols]->solid = true;
                 }
             }
-            featureImage.draw(grids[index]->pos.x, grids[index]->pos.y, w, h);
+            // featureImage.draw(grids[index]->pos.x, grids[index]->pos.y);
+            for(int i = 0; i < floor(featureImage.getWidth()); i += 5){
+                for(int j = 0; j < floor(featureImage.getHeight()); j += 5){
+                    int tempIndex = i + j * floor(featureImage.getWidth());
+                    ofColor tempC = featureImage.getColor(tempIndex);
+                    float tempR = ofMap(tempC[0], 0, 255, 0, 3.5);
+                    ofSetColor(tempC);
+                    ofDrawEllipse(grids[index]->pos.x + i, grids[index]->pos.y + j, tempR, tempR);
+                }
+            }
             return index;
         }else{
             return 0;
         }
     }else{
-        featureImage.draw(grids[checkSet]->pos.x, grids[checkSet]->pos.y, w, h);
+        // featureImage.draw(grids[checkSet]->pos.x, grids[checkSet]->pos.y);
+        for(int i = 0; i < floor(featureImage.getWidth()); i += 5){
+            for(int j = 0; j < floor(featureImage.getHeight()); j += 5){
+                int tempIndex = i + j * floor(featureImage.getWidth());
+                ofColor tempC = featureImage.getColor(tempIndex);
+                float tempR = ofMap(tempC[0], 0, 255, 0, 3.5);
+                ofSetColor(tempC);
+                ofDrawEllipse(grids[checkSet]->pos.x + i, grids[checkSet]->pos.y + j, tempR, tempR);
+            }
+        }
         return checkSet;
     }
 }
@@ -399,7 +418,7 @@ void ofApp::drawDate(){
     String currentDate = " current time: " + year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second + ". ";
     float stringWidth = font.getStringBoundingBox(currentDate, 0, 0).getWidth();
     ofFill();
-    ofSetColor(230);
+    ofSetColor(200);
     
     
     ofPushView();
