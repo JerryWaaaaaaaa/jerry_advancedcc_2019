@@ -36,17 +36,9 @@ class ofApp : public ofBaseApp, public FaceOsc{
     
         bool showGui;
         ofxPanel gui;
-        /*
-        ofxSlider<double> cp1;
-        ofxSlider<double> cp2;
-        ofxSlider<double> cp3;
-        ofxSlider<double> cp4;
-        ofxSlider<double> rp1;
-        ofxSlider<double> rp2;
-        ofxSlider<double> rp3;
-        ofxSlider<double> rp4;
-        */
-        ofxSlider<int> thresholdChange;
+    
+        ofxSlider<float> brightness;
+        ofxSlider<float> contrast;
     
         float cp1, cp2, cp3, cp4;
         float rp1, rp2, rp3, rp4;
@@ -76,9 +68,19 @@ class ofApp : public ofBaseApp, public FaceOsc{
         int checkRightEye = 0;
         int checkMouse = 0;
         int checkNose = 0;
-        int checkJaw = 0;
     
         ofFbo pattern;
+    
+        ofShader formShader;
+        ofShader fillShader;
+    
+        ofTrueTypeFont font;
+        float fontOffset = 0;
+    
+        int shapeX;
+        int shapeY;
+        int xOffset;
+        int yOffset;
     
         void loadSettings();
 		void setup();
@@ -101,10 +103,9 @@ class ofApp : public ofBaseApp, public FaceOsc{
         void updateFBO();
         void drawGrid();
         int drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, float scale);
+        void drawDate();
+        void drawShapes();
     
-        ofShader wireFrameShader;
-        ofShader fillShader;
-    
-    
+
     
 };

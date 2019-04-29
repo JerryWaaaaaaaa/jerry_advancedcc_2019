@@ -70,8 +70,6 @@ void ofApp::loadSettings(){
     xml.clear();
 }
 
-
-
 //--------------------------------------------------------------
 void ofApp::setup(){
     
@@ -126,9 +124,12 @@ void ofApp::setup(){
     }
     
     // set up GUI
+    /*
     showGui = true;
     gui.setup();
-    gui.add(thresholdChange.setup("threshold", 2, 0, 2));
+    gui.add(brightness.setup("brightness", 0, 0, 10));
+    gui.add(contrast.setup("copntrast", 0, 0, 10));
+     */
     
     // set up videoGrabber
     glm::ivec2 vidSize = glm::ivec2(vidGrabber.getWidth(),vidGrabber.getHeight());
@@ -142,7 +143,6 @@ void ofApp::setup(){
     // grayDiff.allocate(vidSize.x, vidSize.y);
     
     bLearnBackground = true;
-    threshold = thresholdChange;
     
     // set up fbo
     pattern.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
@@ -153,21 +153,25 @@ void ofApp::setup(){
     // set up shader
     if(ofIsGLProgrammableRenderer()){
         try {
-            wireFrameShader.load("faceShader/wireFrameShader");
-            fillShader.load("faceShader/fillShader");
+            formShader.load("shaders/formShader");
+            fillShader.load("shaders/fillShader");
         } catch (std::exception e) {
             ofLog() << e.what() << endl;
         }
     }
+    
+    // set up the font
+    font.load("fonts/Exo-Medium.ttf", 20, true, true, true);
+    
+    // set up the shape original pos
+    shapeX = ofRandom(0, ofGetWidth());
+    shapeY = ofRandom(0, ofGetHeight());
     
     ofSetBackgroundAuto(true);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    
-    // update threshold
-    threshold = thresholdChange;
     
     // update video info
     videoSource->update();
@@ -179,6 +183,7 @@ void ofApp::update(){
 
         colorImg.setFromPixels(videoSource->getPixels());
         grayImage = colorImg;
+        grayImage.brightnessContrast(0.2, 0.7);
         grayScale.setFromPixels(grayImage.getPixels());
         
         // update font size
@@ -197,15 +202,9 @@ void ofApp::update(){
             rp2 = faceCenter.y - (leftEye.y + rightEye.y)/2;
             rp3 = mouth.y - faceCenter.y;
             rp4 = faceCenter.y + faceHeight/2 - mouth.y;
-        }else{
-            checkLeftEye = 0;
-            checkRightEye = 0;
-            checkMouse = 0;
-            checkNose = 0;
-            checkJaw = 0;
         }
     }
-    ofLog() << checkLeftEye << " " << checkRightEye << " " << checkMouse << " " << checkNose << " " << checkJaw << endl;
+    ofLog() << checkLeftEye << " " << checkRightEye << " " << checkMouse << " " << checkNose << endl;
     
     // update text
     for(int i = 0; i < letters.size(); i ++ ){
@@ -215,15 +214,24 @@ void ofApp::update(){
     // update drawings in fbo
     updateFBO();
     
+    // update the shape position
+    shapeX += ofMap(ofNoise(xOffset), 0, 1, -1, 1) * 1;
+    shapeY += ofMap(ofNoise(yOffset), 0, 1, -1, 1) * 1;
+    xOffset += 0.1;
+    yOffset += 0.1;
+    if(shapeX > ofGetWidth()){
+        shapeX = 0;
+    }
+    if(shapeY > ofGetHeight()){
+        shapeY = 0;
+    }
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
     ofBackground(10);
-    
-    // draw grid
-    // drawGrid();
     
     // draw face badsed on different shaders
     if(tracker.getFound()){
@@ -235,29 +243,31 @@ void ofApp::draw(){
         
         for( int i = 0; i < twoTime.getNumVertices(); i++ ) {
             oneTime.getVertices()[i] = (oneTime.getVertices()[i]-centroid) * 0.4;
-            twoTime.getVertices()[i] = (twoTime.getVertices()[i]-centroid) * 3.6;
+            twoTime.getVertices()[i] = (twoTime.getVertices()[i]-centroid) * 3;
         }
         
         // draw the face based on shader
         fillShader.begin();
+        
         ofPushView();
         ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
         twoTime.drawWireframe();
         ofPopView();
+        
         fillShader.end();
         
-        
     } else {
-        fillShader.begin();
+        formShader.begin();
+        formShader.setUniform1f("time", ofGetElapsedTimef());
         
         ofPushView();
         ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
         ofSpherePrimitive sphere;
-        sphere.set(ofGetWidth()/3, 10);
+        sphere.set(ofGetWidth()/3, 6);
         sphere.drawWireframe();
         ofPopView();
         
-        fillShader.end();
+        formShader.end();
     }
     
     // draw FBO
@@ -268,10 +278,15 @@ void ofApp::draw(){
         letters[i]->draw();
     }
     
+    // draw grid
+    // drawGrid();
+    
     // draw GUI
+    /*
     if(showGui){
        gui.draw();
     }
+    */
 
 }
 
@@ -295,9 +310,14 @@ void ofApp::updateFBO(){
         checkLeftEye = drawFacePart(ofxFaceTracker::LEFT_EYE, checkLeftEye, 2.0f);
         checkRightEye = drawFacePart(ofxFaceTracker::RIGHT_EYE, checkRightEye, 1.0f);
         checkNose = drawFacePart(ofxFaceTracker::NOSE_BASE, checkNose, 1.0f);
-        // checkJaw = drawFacePart(ofxFaceTracker::LEFT_JAW, checkJaw, 1.0f);
         checkMouse = drawFacePart(ofxFaceTracker::OUTER_MOUTH, checkMouse, 2.0f);
     }
+    
+    // draw shapes
+    // drawShapes();
+    
+    // draw date and time
+    drawDate();
     
     pattern.end();
     
@@ -318,24 +338,80 @@ int ofApp::drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, fl
     ofImage featureImage = grayScale;
     ofVec2f featurePos = tracker.getImageFeature(feature).getCentroid2D();
     featureImage.crop(floor(featurePos.x - 30), floor(featurePos.y - 30), 60, 60);
+    float w = (moduleWidth + gutter) * (scale - 1.0f) + moduleWidth;
+    float h = (moduleHeight + gutter) * (scale - 1.0f) + moduleHeight;
     // featureImage.resize(floor(moduleWidth) * scale, floor(moduleHeight) * scale);
     if(checkSet == 0){
-        int row = floor(ofRandom(2, rows-3));
+        int row = floor(ofRandom(2, rows-2));
         int col = floor(ofRandom(2, cols-2));
         int index = getIndex(row, col);
-        bool set = false;
+        bool set = true;
+        // see if all to-be-occupied grid are not solid, if solid, redo the location seeking
+        for(int i = 0; i < floor(scale); i ++ ){
+            for(int j = 0; j < floor(scale); j ++ ){
+                if(grids[index + i + j * cols]->solid){
+                    set = false;
+                    break;
+                }
+            }
+        }
         
-        if(!grids[index]->solid){
-            grids[index]->solid = true;
-            featureImage.draw(grids[index]->pos.x, grids[index]->pos.y, moduleWidth * scale, moduleHeight * scale);
+        if(set){
+            for(int i = 0; i < floor(scale); i ++ ){
+                for(int j = 0; j < floor(scale); j ++ ){
+                    grids[index + i + j * cols]->solid = true;
+                }
+            }
+            featureImage.draw(grids[index]->pos.x, grids[index]->pos.y, w, h);
             return index;
         }else{
             return 0;
         }
     }else{
-        featureImage.draw(grids[checkSet]->pos.x, grids[checkSet]->pos.y, moduleWidth * scale, moduleHeight * scale);
+        featureImage.draw(grids[checkSet]->pos.x, grids[checkSet]->pos.y, w, h);
         return checkSet;
     }
+}
+
+//--------------------------------------------------------------
+void ofApp::drawDate(){
+    String year = ofToString(ofGetYear(),4);
+    String month = ofToString(ofGetMonth(),2);
+    String day = ofToString(ofGetDay(),2);
+    String hour = ofToString(ofGetHours(),2);
+    String minute = ofToString(ofGetMinutes(),2);
+    String second = ofToString(ofGetSeconds(),2);
+    String currentDate = " current time: " + year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second + ". ";
+    float stringWidth = font.getStringBoundingBox(currentDate, 0, 0).getWidth();
+    ofFill();
+    ofSetColor(230);
+    
+    
+    ofPushView();
+    ofRotateDeg(90);
+    for(int i = 0; i < 5; i ++ ){
+       font.drawStringAsShapes(currentDate, fontOffset - stringWidth * 2 + stringWidth * i, 0);
+    }
+    ofPopView();
+    
+    ofPushView();
+    ofTranslate(ofGetWidth(), ofGetHeight());
+    ofRotateDeg(-90);
+    for(int i = 0; i < 5; i ++ ){
+        font.drawStringAsShapes(currentDate, fontOffset - stringWidth * 2 + stringWidth * i, 0);
+    }
+    ofPopView();
+    
+    fontOffset ++;
+    if(fontOffset > stringWidth * 2){
+        fontOffset = 0;
+    }
+}
+
+//--------------------------------------------------------------
+void ofApp::drawShapes(){
+    ofSetColor(250,250,250,220);
+    ofDrawEllipse(shapeX, shapeY, 150,150);
 }
 
 //--------------------------------------------------------------
