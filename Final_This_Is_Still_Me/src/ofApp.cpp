@@ -49,7 +49,7 @@ void ofApp::loadSettings(){
         tracker.setClamp(xml.getValue("clamp", 3.0));
     }
     if(xml.exists("tolerance")) {
-        tracker.setTolerance(xml.getValue("tolerance", 0.01));
+        tracker.setTolerance(xml.getValue("tolerance", 0.1));
     }
     if(xml.exists("attempts")) {
         tracker.setAttempts(xml.getValue("attempts", 1));
