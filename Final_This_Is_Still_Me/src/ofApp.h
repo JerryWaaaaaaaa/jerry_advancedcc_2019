@@ -108,6 +108,7 @@ class ofApp : public ofBaseApp, public FaceOsc{
         int drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, float scale);
         void drawDate();
         void drawShapes();
+        void drawShaders();
     
 
     

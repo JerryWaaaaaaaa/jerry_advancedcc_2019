@@ -243,53 +243,15 @@ void ofApp::draw(){
     
     ofBackground(10);
     
-    // draw face badsed on different shaders
-    if(tracker.getFound()){
-        ofMesh face = tracker.getImageMesh();;
-        ofMesh oneTime = face;
-        ofMesh twoTime = face;
-        
-        glm::vec3 centroid = face.getCentroid();
-        
-        for( int i = 0; i < twoTime.getNumVertices(); i++ ) {
-            oneTime.getVertices()[i] = (oneTime.getVertices()[i]-centroid) * 0.4;
-            twoTime.getVertices()[i] = (twoTime.getVertices()[i]-centroid) * 3;
-        }
-        
-        // draw the face based on shader
-        fillShader.begin();
-        
-        ofPushView();
-        ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
-        twoTime.drawWireframe();
-        ofPopView();
-        
-        fillShader.end();
-        
-    } else {
-        formShader.begin();
-        formShader.setUniform1f("time", ofGetElapsedTimef());
-        
-        ofPushView();
-        ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
-        ofSpherePrimitive sphere;
-        sphere.set(ofGetWidth()/3, 6);
-        sphere.drawWireframe();
-        ofPopView();
-        
-        formShader.end();
-    }
-    
     // draw FBO
-    pattern.draw(0,0);
-
-    // draw text
-    for(int i = 0; i < letters.size(); i ++ ){
-        letters[i]->draw();
-    }
+    // pattern.draw(0,0);
     
-    // draw grid
-    // drawGrid();
+    
+    // draw ofImage based on my FBO
+    ofPixels pix;
+    pattern.getTexture().readToPixels(pix);
+    ofImage img(pix);
+    img.draw(0, 0);
     
     // draw GUI
     /*
@@ -320,6 +282,9 @@ void ofApp::updateFBO(){
     ofClear(255,255,255,0);
     // videoSource->draw(0,0);
     
+    // draw shaders
+    drawShaders();
+    
     // draw eys mouse and nose
     if(tracker.getFound()){
         checkLeftEye = drawFacePart(ofxFaceTracker::LEFT_EYE, checkLeftEye, 2.0f);
@@ -328,11 +293,13 @@ void ofApp::updateFBO(){
         checkMouse = drawFacePart(ofxFaceTracker::OUTER_MOUTH, checkMouse, 2.0f);
     }
     
-    // draw shapes
-    // drawShapes();
-    
     // draw date and time
     drawDate();
+    
+    // draw text
+    for(int i = 0; i < letters.size(); i ++ ){
+        letters[i]->draw();
+    }
     
     pattern.end();
     
@@ -446,6 +413,45 @@ void ofApp::drawDate(){
 void ofApp::drawShapes(){
     ofSetColor(250,250,250,220);
     ofDrawEllipse(shapeX, shapeY, 150,150);
+}
+
+//--------------------------------------------------------------
+void ofApp::drawShaders(){
+    if(tracker.getFound()){
+        ofMesh face = tracker.getImageMesh();;
+        ofMesh oneTime = face;
+        ofMesh twoTime = face;
+        
+        glm::vec3 centroid = face.getCentroid();
+        
+        for( int i = 0; i < twoTime.getNumVertices(); i++ ) {
+            oneTime.getVertices()[i] = (oneTime.getVertices()[i]-centroid) * 0.4;
+            twoTime.getVertices()[i] = (twoTime.getVertices()[i]-centroid) * 3;
+        }
+        
+        // draw the face based on shader
+        fillShader.begin();
+        
+        ofPushView();
+        ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+        twoTime.drawWireframe();
+        ofPopView();
+        
+        fillShader.end();
+        
+    } else {
+        formShader.begin();
+        formShader.setUniform1f("time", ofGetElapsedTimef());
+        
+        ofPushView();
+        ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+        ofSpherePrimitive sphere;
+        sphere.set(ofGetWidth()/3, 6);
+        sphere.drawWireframe();
+        ofPopView();
+        
+        formShader.end();
+    }
 }
 
 //--------------------------------------------------------------
