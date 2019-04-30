@@ -35,12 +35,12 @@ void Grid::update(double _moduleWidth, double _moduleHeight){
 void Grid::draw(){
     if(mode == "poster"){
         ofNoFill();
-        ofSetLineWidth(1);
+        // ofSetLineWidth(1);
         ofSetColor(10);
     }
     else if(mode == "letter"){
         ofFill();
-        ofSetColor(220);
+        ofSetColor(210);
     }
     ofDrawRectangle(pos.x-1, pos.y-1, moduleWidth+1, moduleHeight+1);
 }

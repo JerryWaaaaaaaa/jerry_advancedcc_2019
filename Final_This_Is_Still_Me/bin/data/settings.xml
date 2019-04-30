@@ -22,8 +22,8 @@
     <camera>
         <device>0</device>
         <!-- <framerate>30</framerate> -->
-        <width>600</width>
-        <height>400</height>
+        <width>660</width>
+        <height>880</height>
     </camera>
     
     <!-- movie input settings -->

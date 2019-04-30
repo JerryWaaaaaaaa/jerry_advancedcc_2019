@@ -9,8 +9,8 @@ void main()
     // we use gl_FragCoord.y position to control the green color value.
     // please note that all r, g, b, a values are between 0 and 1.
     
-    float windowWidth = 600;
-    float windowHeight = 900;
+    float windowWidth = 660;
+    float windowHeight = 880;
     
 	float r = gl_FragCoord.x / windowWidth;
 	float g = gl_FragCoord.y / windowHeight;
