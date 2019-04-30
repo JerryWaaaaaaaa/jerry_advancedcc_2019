@@ -66,6 +66,7 @@ class ofApp : public ofBaseApp, public FaceOsc{
         // check if the senses are drawn
         int checkLeftEye = 0;
         int checkRightEye = 0;
+        int checkRightEye2 = 0;
         int checkMouse = 0;
         int checkNose = 0;
     

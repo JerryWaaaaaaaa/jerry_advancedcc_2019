@@ -126,12 +126,12 @@ void ofApp::setup(){
     }
     
     // set up GUI
-    /*
+    
     showGui = true;
     gui.setup();
-    gui.add(brightness.setup("brightness", 0, 0, 10));
-    gui.add(contrast.setup("copntrast", 0, 0, 10));
-     */
+    gui.add(brightness.setup("brightness", 0.2, 0, 1));
+    gui.add(contrast.setup("copntrast", 0.7, 0, 1));
+    
     
     // set up videoGrabber
     glm::ivec2 vidSize = glm::ivec2(vidGrabber.getWidth(),vidGrabber.getHeight());
@@ -163,7 +163,7 @@ void ofApp::setup(){
     }
     
     // set up the font
-    font.load("fonts/Exo-Medium.ttf", 20, true, true, true, 0);
+    font.load("fonts/Exo-Medium.ttf", 18, true, true, true, 1);
     
     // set up the shape original pos
     shapeX = ofRandom(0, ofGetWidth());
@@ -189,7 +189,7 @@ void ofApp::update(){
 
         colorImg.setFromPixels(videoSource->getPixels());
         grayImage = colorImg;
-        grayImage.brightnessContrast(0.2, 0.7);
+        grayImage.brightnessContrast(brightness, contrast);
         grayScale.setFromPixels(grayImage.getPixels());
         
         // update font size
@@ -254,11 +254,11 @@ void ofApp::draw(){
     img.draw(0, 0);
     
     // draw GUI
-    /*
+    
     if(showGui){
        gui.draw();
     }
-    */
+    
     
     if( oneShot ){
         ofEndSaveScreenAsPDF();
@@ -289,6 +289,7 @@ void ofApp::updateFBO(){
     if(tracker.getFound()){
         checkLeftEye = drawFacePart(ofxFaceTracker::LEFT_EYE, checkLeftEye, 2.0f);
         checkRightEye = drawFacePart(ofxFaceTracker::RIGHT_EYE, checkRightEye, 1.0f);
+        checkRightEye2 = drawFacePart(ofxFaceTracker::RIGHT_EYE, checkRightEye2, 3.0f);
         checkNose = drawFacePart(ofxFaceTracker::NOSE_BASE, checkNose, 1.0f);
         checkMouse = drawFacePart(ofxFaceTracker::OUTER_MOUTH, checkMouse, 2.0f);
     }
@@ -325,7 +326,7 @@ int ofApp::drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, fl
     featureImage.resize(w, h);
     // featureImage.resize(floor(moduleWidth) * scale, floor(moduleHeight) * scale);
     if(checkSet == 0){
-        int row = floor(ofRandom(2, rows-2));
+        int row = floor(ofRandom(1, rows-3));
         int col = floor(ofRandom(2, cols-2));
         int index = getIndex(row, col);
         bool set = true;
@@ -365,7 +366,7 @@ int ofApp::drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, fl
             for(int j = 0; j < floor(featureImage.getHeight()); j += 5){
                 int tempIndex = i + j * floor(featureImage.getWidth());
                 ofColor tempC = featureImage.getColor(tempIndex);
-                float tempR = ofMap(tempC[0], 0, 255, 0, 3.5);
+                float tempR = ofMap(tempC[0], 0, 255, 0.4, 3);
                 ofSetColor(tempC);
                 ofDrawEllipse(grids[checkSet]->pos.x + i, grids[checkSet]->pos.y + j, tempR, tempR);
             }
@@ -385,7 +386,7 @@ void ofApp::drawDate(){
     String currentDate = " current time: " + year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second + ". ";
     float stringWidth = font.getStringBoundingBox(currentDate, 0, 0).getWidth();
     ofFill();
-    ofSetColor(200);
+    ofSetColor(220);
     
     
     ofPushView();
@@ -474,6 +475,20 @@ void ofApp::keyPressed(int key){
             if( !pdfRendering ){
                 oneShot = true;
             }
+            break;
+        case ' ':
+            // reset the feature location
+            for(int i = 0; i < grids.size(); i ++ ){
+                grids[i]->solid = false;
+            }
+            for(int i = 0; i < letters.size(); i ++ ){
+                grids[letters[i]->index]->solid = true; // the grid is occupied
+            }
+            checkLeftEye = 0;
+            checkRightEye = 0;
+            checkRightEye2 = 0;
+            checkMouse = 0;
+            checkNose = 0;
             break;
     }
 }
