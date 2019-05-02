@@ -57,9 +57,6 @@ class ofApp : public ofBaseApp, public FaceOsc{
         ofImage grayScale;
         ofxCvGrayscaleImage grayDiff;
         ofxCvContourFinder contourFinder;
-
-        int threshold;
-        bool bLearnBackground;
     
         ofxFaceTracker tracker;
     
@@ -92,25 +89,16 @@ class ofApp : public ofBaseApp, public FaceOsc{
 		void draw();
 
 		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void mouseEntered(int x, int y);
-		void mouseExited(int x, int y);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
     
-        int getIndex(int _row, int _col);
         void updateFBO();
-        void drawGrid();
+
         int drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, float scale);
         void drawDate();
-        void drawShapes();
         void drawShaders();
+        void drawCenteredStringAsShapes(string output, float x, float y);
     
+        int getIndex(int _row, int _col);
+        void drawGrid();
 
     
 };

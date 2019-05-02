@@ -89,7 +89,7 @@ void ofApp::setup(){
         for(int j = 0; j < cols; j ++ ){
             double x = (moduleWidth + gutter) * j;
             double y = (moduleHeight + gutter) * i;
-            glm::ivec2 tempPos = glm::ivec2(x, y);
+            glm::vec2 tempPos = glm::vec2(x, y);
             shared_ptr<Grid> tempModule = make_shared<Grid>(tempPos, "poster");
             grids[j + i * cols] = tempModule;
         }
@@ -127,15 +127,13 @@ void ofApp::setup(){
     }
     
     // set up GUI
-    
-    showGui = true;
+    showGui = false;
     gui.setup();
     gui.add(brightness.setup("brightness", 0.39, 0, 1));
     gui.add(contrast.setup("copntrast", 0.515, 0, 1));
     
-    
     // set up videoGrabber
-    glm::ivec2 vidSize = glm::ivec2(vidGrabber.getWidth(),vidGrabber.getHeight());
+    glm::vec2 vidSize = glm::vec2(vidGrabber.getWidth(),vidGrabber.getHeight());
     //cout << vidSize.x << "," << vidSize.y << endl;
 
     videoSource = &vidGrabber;
@@ -144,9 +142,7 @@ void ofApp::setup(){
     grayScale.allocate(vidSize.x, vidSize.y, OF_IMAGE_GRAYSCALE);
     // grayBg.allocate(vidSize.x, vidSize.y);
     // grayDiff.allocate(vidSize.x, vidSize.y);
-    
-    bLearnBackground = true;
-    
+
     // set up fbo
     pattern.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
     pattern.begin();
@@ -165,10 +161,6 @@ void ofApp::setup(){
     
     // set up the font
     font.load("fonts/Exo-Medium.ttf", 18, true, true, true, 0.1);
-    
-    // set up the shape original pos
-    shapeX = ofRandom(0, ofGetWidth());
-    shapeY = ofRandom(0, ofGetHeight());
     
     // set up pdf rendering
     pdfRendering = false;
@@ -195,10 +187,10 @@ void ofApp::update(){
         
         // update font size
         if(tracker.getFound()){
-            glm::ivec2 leftEye = tracker.getImageFeature(ofxFaceTracker::LEFT_EYE).getCentroid2D();
-            glm::ivec2 rightEye = tracker.getImageFeature(ofxFaceTracker::RIGHT_EYE).getCentroid2D();
-            glm::ivec2 faceCenter = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getCentroid2D();
-            glm::ivec2 mouth = tracker.getImageFeature(ofxFaceTracker::OUTER_MOUTH).getCentroid2D();
+            glm::vec2 leftEye = tracker.getImageFeature(ofxFaceTracker::LEFT_EYE).getCentroid2D();
+            glm::vec2 rightEye = tracker.getImageFeature(ofxFaceTracker::RIGHT_EYE).getCentroid2D();
+            glm::vec2 faceCenter = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getCentroid2D();
+            glm::vec2 mouth = tracker.getImageFeature(ofxFaceTracker::OUTER_MOUTH).getCentroid2D();
             float faceWidth = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getBoundingBox().getWidth();
             float faceHeight = tracker.getImageFeature(ofxFaceTracker::FACE_OUTLINE).getBoundingBox().getHeight();
             cp1 = leftEye.x - (faceCenter.x - faceWidth/2);
@@ -269,12 +261,6 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-int ofApp::getIndex(int _row, int _col){
-    int index = _col + _row * cols;
-    return index;
-}
-
-//--------------------------------------------------------------
 void ofApp::updateFBO(){
     
     // draw the image based on FBO
@@ -305,16 +291,6 @@ void ofApp::updateFBO(){
     
     pattern.end();
     
-}
-
-//--------------------------------------------------------------
-void ofApp::drawGrid(){
-     for(int i = 0; i < rows; i ++ ){
-         for(int j = 0; j < cols; j ++ ){
-             int index = j + i * cols;
-             grids[index]->draw();
-         }
-     }
 }
 
 //--------------------------------------------------------------
@@ -412,12 +388,6 @@ void ofApp::drawDate(){
 }
 
 //--------------------------------------------------------------
-void ofApp::drawShapes(){
-    ofSetColor(250,250,250,220);
-    ofDrawEllipse(shapeX, shapeY, 150,150);
-}
-
-//--------------------------------------------------------------
 void ofApp::drawShaders(){
     if(tracker.getFound()){
         ofMesh face = tracker.getImageMesh();;
@@ -442,9 +412,12 @@ void ofApp::drawShaders(){
         fillShader.end();
         
     } else {
+        
+        // draw the sphere based on the shader
         formShader.begin();
         formShader.setUniform1f("time", ofGetElapsedTimef());
         
+
         ofPushView();
         ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
         ofSpherePrimitive sphere;
@@ -453,6 +426,10 @@ void ofApp::drawShaders(){
         ofPopView();
         
         formShader.end();
+        
+        // draw the text hint
+        drawCenteredStringAsShapes("Please find a better lighting for your face.", ofGetWidth()/2, ofGetHeight()*2/3);
+        
     }
 }
 
@@ -461,16 +438,6 @@ void ofApp::keyPressed(int key){
     switch(key){
         case 'g':
             showGui = !showGui;
-            break;
-        case 'r':
-            pdfRendering = !pdfRendering;
-            if( pdfRendering ){
-                ofSetFrameRate(12);  // so it doesn't generate tons of pages
-                ofBeginSaveScreenAsPDF("recording-"+ofGetTimestampString()+".pdf", true);
-            }else{
-                ofSetFrameRate(60);
-                ofEndSaveScreenAsPDF();
-            }
             break;
         case 's':
             if( !pdfRendering ){
@@ -495,51 +462,30 @@ void ofApp::keyPressed(int key){
 }
 
 //--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
+int ofApp::getIndex(int _row, int _col){
+    int index = _col + _row * cols;
+    return index;
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-
+void ofApp::drawGrid(){
+    for(int i = 0; i < rows; i ++ ){
+        for(int j = 0; j < cols; j ++ ){
+            int index = j + i * cols;
+            grids[index]->draw();
+        }
+    }
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
+void ofApp::drawCenteredStringAsShapes(string output, float x, float y){
+    
+    float textWidth = font.getStringBoundingBox(output, x, y).getWidth();
+    float textHeight = font.getStringBoundingBox(output, x, y).getHeight();
+    glm::vec2 center = glm::vec2(x - textWidth/2,y - textHeight/2);
+    
+    ofPushView();
+    ofTranslate(center.x, center.y);
+    font.drawStringAsShapes(output, 0, 0);
+    ofPopView();
 }
