@@ -74,6 +74,7 @@ void ofApp::loadSettings(){
 void ofApp::setup(){
     
     ofSetFrameRate(60);
+    ofEnableSmoothing();
     
     ofSetVerticalSync(true);
     loadSettings();
@@ -129,8 +130,8 @@ void ofApp::setup(){
     
     showGui = true;
     gui.setup();
-    gui.add(brightness.setup("brightness", 0.2, 0, 1));
-    gui.add(contrast.setup("copntrast", 0.7, 0, 1));
+    gui.add(brightness.setup("brightness", 0.39, 0, 1));
+    gui.add(contrast.setup("copntrast", 0.515, 0, 1));
     
     
     // set up videoGrabber
@@ -163,7 +164,7 @@ void ofApp::setup(){
     }
     
     // set up the font
-    font.load("fonts/Exo-Medium.ttf", 18, true, true, true, 1);
+    font.load("fonts/Exo-Medium.ttf", 18, true, true, true, 0.1);
     
     // set up the shape original pos
     shapeX = ofRandom(0, ofGetWidth());
