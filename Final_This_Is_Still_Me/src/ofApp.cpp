@@ -144,7 +144,8 @@ void ofApp::setup(){
     // grayDiff.allocate(vidSize.x, vidSize.y);
 
     // set up fbo
-    pattern.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
+    // IMPORTANT: using the MSAA method to have a better polyline
+    pattern.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA, 1);
     pattern.begin();
     ofClear(255,255,255,0);
     pattern.end();
@@ -212,18 +213,6 @@ void ofApp::update(){
     
     // update drawings in fbo
     updateFBO();
-    
-    // update the shape position
-    shapeX += ofMap(ofNoise(xOffset), 0, 1, -1, 1) * 1;
-    shapeY += ofMap(ofNoise(yOffset), 0, 1, -1, 1) * 1;
-    xOffset += 0.1;
-    yOffset += 0.1;
-    if(shapeX > ofGetWidth()){
-        shapeX = 0;
-    }
-    if(shapeY > ofGetHeight()){
-        shapeY = 0;
-    }
     
 }
 
@@ -369,7 +358,7 @@ void ofApp::drawDate(){
     ofPushView();
     ofRotateDeg(90);
     for(int i = 0; i < 5; i ++ ){
-       font.drawStringAsShapes(currentDate, fontOffset - stringWidth * 2 + stringWidth * i, 0);
+       font.drawString(currentDate, fontOffset - stringWidth * 2 + stringWidth * i, 0);
     }
     ofPopView();
     
@@ -377,7 +366,7 @@ void ofApp::drawDate(){
     ofTranslate(ofGetWidth(), ofGetHeight());
     ofRotateDeg(-90);
     for(int i = 0; i < 5; i ++ ){
-        font.drawStringAsShapes(currentDate, fontOffset - stringWidth * 2 + stringWidth * i, 0);
+        font.drawString(currentDate, fontOffset - stringWidth * 2 + stringWidth * i, 0);
     }
     ofPopView();
     
@@ -406,6 +395,7 @@ void ofApp::drawShaders(){
         
         ofPushView();
         ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+        // twoTime.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
         twoTime.drawWireframe();
         ofPopView();
         
@@ -422,13 +412,14 @@ void ofApp::drawShaders(){
         ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
         ofSpherePrimitive sphere;
         sphere.set(ofGetWidth()/3, 6);
+        // sphere.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
         sphere.drawWireframe();
         ofPopView();
         
         formShader.end();
         
         // draw the text hint
-        drawCenteredStringAsShapes("Please find a better lighting for your face.", ofGetWidth()/2, ofGetHeight()*2/3);
+        drawCenteredString("Please find a better lighting for your face.", ofGetWidth()/2, ofGetHeight()*2/3);
         
     }
 }
@@ -478,7 +469,7 @@ void ofApp::drawGrid(){
 }
 
 //--------------------------------------------------------------
-void ofApp::drawCenteredStringAsShapes(string output, float x, float y){
+void ofApp::drawCenteredString(string output, float x, float y){
     
     float textWidth = font.getStringBoundingBox(output, x, y).getWidth();
     float textHeight = font.getStringBoundingBox(output, x, y).getHeight();
@@ -486,6 +477,6 @@ void ofApp::drawCenteredStringAsShapes(string output, float x, float y){
     
     ofPushView();
     ofTranslate(center.x, center.y);
-    font.drawStringAsShapes(output, 0, 0);
+    font.drawString(output, 0, 0);
     ofPopView();
 }

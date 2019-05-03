@@ -78,11 +78,6 @@ class ofApp : public ofBaseApp, public FaceOsc{
         bool pdfRendering;
         bool oneShot;
     
-        int shapeX;
-        int shapeY;
-        int xOffset;
-        int yOffset;
-    
         void loadSettings();
 		void setup();
 		void update();
@@ -95,8 +90,7 @@ class ofApp : public ofBaseApp, public FaceOsc{
         int drawFacePart(const ofxFaceTracker::Feature &feature, int checkSet, float scale);
         void drawDate();
         void drawShaders();
-        void drawCenteredStringAsShapes(string output, float x, float y);
-    
+        void drawCenteredString(string output, float x, float y);
         int getIndex(int _row, int _col);
         void drawGrid();
 
